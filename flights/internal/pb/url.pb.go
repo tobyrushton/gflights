@@ -6,15 +6,14 @@
 // 	protoc        v6.32.1
 // source: url.proto
 
-package url
+package pb
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -512,7 +511,7 @@ const file_url_proto_rawDesc = "" +
 	"\x10UNSPECIFIED_TRIP\x10\x00\x12\x0e\n" +
 	"\n" +
 	"ROUND_TRIP\x10\x01\x12\v\n" +
-	"\aONE_WAY\x10\x02B6Z4github.com/tobyrushton/gflights/flights/internal/urlb\x06proto3"
+	"\aONE_WAY\x10\x02B5Z3github.com/tobyrushton/gflights/flights/internal/pbb\x06proto3"
 
 var (
 	file_url_proto_rawDescOnce sync.Once
