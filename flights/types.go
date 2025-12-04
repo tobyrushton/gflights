@@ -54,8 +54,8 @@ const (
 type TripType int64
 
 const (
-	OneWay TripType = iota + 1
-	RoundTrip
+	RoundTrip TripType = iota + 1
+	OneWay
 )
 
 // Stops represents the number of stops for the flight
@@ -143,7 +143,6 @@ type Args struct {
 }
 
 func (a *Args) Validate() error {
-	fmt.Println(a.Options)
 	if err := validateDate(a.DepartureDate, a.ReturnDate); err != nil {
 		return err
 	}
