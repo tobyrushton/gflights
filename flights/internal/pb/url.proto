@@ -3,7 +3,7 @@
 syntax = "proto3";
 package url;
 
-option go_package = "github.com/tobyrushton/gflights/flights/internal/url";
+option go_package = "github.com/tobyrushton/gflights/flights/internal/pb";
 
 message Url {
     enum Stops {
