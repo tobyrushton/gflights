@@ -7,9 +7,12 @@ import (
 	"strings"
 
 	"github.com/browserutils/kooky"
+	"github.com/tobyrushton/gflights/flights/internal/syncmap"
 )
 
 type Session struct {
+	Cities syncmap.Map[string, string]
+
 	client  *http.Client
 	cookies []string
 }
