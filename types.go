@@ -1,4 +1,4 @@
-package flights
+package gflights
 
 import (
 	"fmt"

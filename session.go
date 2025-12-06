@@ -1,4 +1,4 @@
-package flights
+package gflights
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/browserutils/kooky"
-	"github.com/tobyrushton/gflights/flights/internal/syncmap"
+	"github.com/tobyrushton/gflights/internal/syncmap"
 )
 
 type Session struct {
