@@ -199,3 +199,10 @@ type PriceRange struct {
 	Min float64 // minimum price
 	Max float64 // maximum price
 }
+
+type RoundTripOffer struct {
+	OneWayOffer
+
+	s     *Session
+	token string
+}

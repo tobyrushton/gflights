@@ -149,8 +149,8 @@ func flightSchema(
 	arrYear, arrMonth, arrDay, arrHours, arrMinutes,
 	duration *float64,
 	flightNoPart1, flightNoPart2 *string,
-) *[]interface{} {
-	return &[]interface{}{
+) *[]any {
+	return &[]any{
 		&flight.Unknown[0],
 		&flight.Unknown[1],
 		&flight.Unknown[2],
@@ -159,9 +159,9 @@ func flightSchema(
 		&flight.ArrAirportName,
 		&flight.ArrAirportCode,
 		&flight.Unknown[3],
-		&[]interface{}{&depHours, &depMinutes},
+		&[]any{&depHours, &depMinutes},
 		&flight.Unknown[4],
-		&[]interface{}{&arrHours, &arrMinutes},
+		&[]any{&arrHours, &arrMinutes},
 		&duration,
 		&flight.Unknown[5],
 		&flight.Unknown[6],
@@ -171,9 +171,9 @@ func flightSchema(
 		&flight.Airplane,
 		&flight.Unknown[10],
 		&flight.Unknown[11],
-		&[]interface{}{&depYear, &depMonth, &depDay},
-		&[]interface{}{&arrYear, &arrMonth, &arrDay},
-		&[]interface{}{&flightNoPart1, &flightNoPart2, nil, &flight.AirlineName},
+		&[]any{&depYear, &depMonth, &depDay},
+		&[]any{&arrYear, &arrMonth, &arrDay},
+		&[]any{&flightNoPart1, &flightNoPart2, nil, &flight.AirlineName},
 		&flight.Unknown[12],
 		&flight.Unknown[13],
 		&flight.Unknown[14],
@@ -223,8 +223,8 @@ func getFlights(rawFlights []json.RawMessage) ([]Flight, error) {
 	return flights, nil
 }
 
-func offerSchema(rawFlights *[]json.RawMessage, price *float64) *[]interface{} {
-	return &[]interface{}{&[]interface{}{nil, nil, rawFlights}, &[]interface{}{&[]interface{}{nil, price}}}
+func offerSchema(rawFlights *[]json.RawMessage, price *float64) *[]any {
+	return &[]any{&[]any{nil, nil, rawFlights}, &[]any{&[]any{nil, price}}}
 }
 
 func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]OneWayOffer, error) {
@@ -264,9 +264,9 @@ func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]O
 	return offers, nil
 }
 
-func sectionOffersSchema(rawOffers1, rawOffers2 *[]json.RawMessage, priceRange *PriceRange) *[]interface{} {
-	return &[]interface{}{nil, nil, &[]interface{}{rawOffers1}, &[]interface{}{rawOffers2}, nil, &[]interface{}{nil, nil, nil, nil,
-		&[]interface{}{nil, &priceRange.Min}, &[]interface{}{nil, &priceRange.Max}}}
+func sectionOffersSchema(rawOffers1, rawOffers2 *[]json.RawMessage, priceRange *PriceRange) *[]any {
+	return &[]any{nil, nil, &[]any{rawOffers1}, &[]any{rawOffers2}, nil, &[]any{nil, nil, nil, nil,
+		&[]any{nil, &priceRange.Min}, &[]any{nil, &priceRange.Max}}}
 }
 
 func getSectionOffers(bytesToDecode []byte, returnDate time.Time) ([]OneWayOffer, *PriceRange, error) {
@@ -321,6 +321,67 @@ func (s *Session) GetOffers(ctx context.Context, args Args) ([]OneWayOffer, *Pri
 		offers, priceRange, _ := getSectionOffers(bytesToDecode, args.ReturnDate)
 		if offers != nil {
 			finalOffers = append(finalOffers, offers...)
+		}
+		if priceRange != nil {
+			finalPriceRange = priceRange
+		}
+	}
+}
+
+func getToken(bytes []byte) string {
+	var data []any
+	if err := json.Unmarshal(bytes, &data); err != nil || len(data) < 2 {
+		return ""
+	}
+
+	innerData, ok := data[0].([]any)
+	if !ok || len(innerData) < 5 {
+		return ""
+	}
+	token, ok := innerData[4].(string)
+	if !ok {
+		return ""
+	}
+
+	return token
+}
+
+func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTripOffer, *PriceRange, error) {
+	if err := args.Validate(); err != nil {
+		return nil, nil, err
+	}
+
+	finalOffers := []RoundTripOffer{}
+	var finalPriceRange *PriceRange
+
+	resp, err := s.doRequestFlights(ctx, args)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resp.Body.Close()
+
+	body := bufio.NewReader(resp.Body)
+	utils.SkipPrefix(body)
+	token := ""
+
+	for {
+		utils.ReadLine(body) // skip line
+		bytesToDecode, err := utils.GetInnerBytes(body)
+		if err != nil {
+			return finalOffers, finalPriceRange, nil
+		}
+
+		if t := getToken(bytesToDecode); t != "" {
+			token = t
+		}
+
+		offers, priceRange, _ := getSectionOffers(bytesToDecode, args.ReturnDate)
+		for _, offer := range offers {
+			finalOffers = append(finalOffers, RoundTripOffer{
+				OneWayOffer: offer,
+				s:           s,
+				token:       token,
+			})
 		}
 		if priceRange != nil {
 			finalPriceRange = priceRange
