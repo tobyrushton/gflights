@@ -47,22 +47,24 @@ func TestGetRoundTripOffers(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	args := Args{
+		DepartureDate: time.Now().AddDate(0, 6, 0),
+		ReturnDate:    time.Now().AddDate(0, 6, 7),
+		SrcCities:     []string{"New York"},
+		DstAirports:   []string{"LHR"},
+		Options: Options{
+			Travelers: Travelers{Adults: 1},
+			Currency:  currency.GBP,
+			Stops:     AnyStops,
+			Class:     Economy,
+			TripType:  RoundTrip,
+			Lang:      language.English,
+		},
+	}
+
 	offers, _, err := session.GetRoundTripOffers(
 		context.Background(),
-		Args{
-			DepartureDate: time.Now().AddDate(0, 6, 0),
-			ReturnDate:    time.Now().AddDate(0, 6, 7),
-			SrcCities:     []string{"New York"},
-			DstAirports:   []string{"LHR"},
-			Options: Options{
-				Travelers: Travelers{Adults: 1},
-				Currency:  currency.EUR,
-				Stops:     AnyStops,
-				Class:     Business,
-				TripType:  RoundTrip,
-				Lang:      language.French,
-			},
-		},
+		args,
 	)
 
 	if err != nil {
@@ -71,5 +73,14 @@ func TestGetRoundTripOffers(t *testing.T) {
 
 	if len(offers) == 0 {
 		t.Fatal("expected at least one flight offer, got none")
+	}
+
+	returnFlights, err := offers[0].GetReturnFlights(context.Background())
+
+	if err != nil {
+		t.Fatalf("error getting return flights: %s", err.Error())
+	}
+	if len(returnFlights) == 0 {
+		t.Fatal("expected at least one return flight, got none")
 	}
 }

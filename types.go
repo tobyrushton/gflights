@@ -205,4 +205,10 @@ type RoundTripOffer struct {
 
 	s     *Session
 	token string
+	args  Args
+}
+
+type RoundTripFlight struct {
+	Flight []Flight
+	Price  float64
 }

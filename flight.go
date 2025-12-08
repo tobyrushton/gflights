@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,8 +14,11 @@ import (
 
 	_ "time/tzdata"
 
+	"github.com/tobyrushton/gflights/internal/pb"
 	"github.com/tobyrushton/gflights/internal/utils"
+	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -62,7 +66,7 @@ func serialiseFlightTravelers(args Args) string {
 	)
 }
 
-func (s *Session) getRawData(ctx context.Context, args Args) (string, error) {
+func (s *Session) getRawData(ctx context.Context, args Args, outboundFlights string) (string, error) {
 	serSrcs, err := s.serialiseFlightLocations(ctx, args.SrcCities, args.SrcAirports, args.Options.Lang)
 	if err != nil {
 		return "", fmt.Errorf("could not serialize src flight src locations: %v", err)
@@ -83,8 +87,8 @@ func (s *Session) getRawData(ctx context.Context, args Args) (string, error) {
 	rawData += fmt.Sprintf(`[null,null,%d,null,[],%d,%s,null,null,null,null,null,null,[`,
 		args.Options.TripType, args.Options.Class, serAdults)
 
-	rawData += fmt.Sprintf(`[[[%s]],[[%s]],null,%s,[],[],\"%s\",null,[],[],[],null,null,[],3]`,
-		serSrcs, serDsts, serStops, serDate)
+	rawData += fmt.Sprintf(`[[[%s]],[[%s]],null,%s,[],[],\"%s\",null,[%s],[],[],null,null,[],3]`,
+		serSrcs, serDsts, serStops, serDate, outboundFlights)
 
 	if args.Options.TripType == RoundTrip {
 		rawData += fmt.Sprintf(`,[[[%s]],[[%s]],null,%s,[],[],\"%s\",null,[],[],[],null,null,[],3]`,
@@ -95,7 +99,7 @@ func (s *Session) getRawData(ctx context.Context, args Args) (string, error) {
 }
 
 func (s *Session) getFlightReqData(ctx context.Context, args Args) (string, error) {
-	rawData, err := s.getRawData(ctx, args)
+	rawData, err := s.getRawData(ctx, args, "")
 	if err != nil {
 		return "", err
 	}
@@ -381,10 +385,132 @@ func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTri
 				OneWayOffer: offer,
 				s:           s,
 				token:       token,
+				args:        args,
 			})
 		}
 		if priceRange != nil {
 			finalPriceRange = priceRange
+		}
+	}
+}
+
+func serialiseOutboundFlights(flights []Flight) string {
+	serFlights := ""
+
+	for _, flight := range flights {
+		serFlights += fmt.Sprintf(
+			`[\"%s\",\"%s\",\"%s\",null,\"%s\",\"%s\"],`,
+			flight.DepAirportCode,
+			flight.DepTime.Format("2006-01-02"),
+			flight.ArrAirportCode,
+			flight.FlightCode.AirlineCode,
+			flight.FlightCode.FlightNumber,
+		)
+	}
+
+	return serFlights[:len(serFlights)-1]
+}
+
+func serialiseRoundTrip(token string, flights []Flight, price float64, currency currency.Unit) (string, error) {
+	flightCodes := func() string {
+		out := ""
+		for _, flight := range flights {
+			out += fmt.Sprintf("%s%s|", flight.FlightCode.AirlineCode, flight.FlightCode.FlightNumber)
+		}
+		return out[:len(out)-1]
+	}()
+
+	roundTrip := pb.RoundTrip{
+		Token:        token,
+		FlightNumber: flightCodes,
+		Price: &pb.RoundTrip_Price{
+			Amount:    int32(price) * 100,
+			Currency:  currency.String(),
+			Precision: 1,
+		},
+		Unknown:  28,
+		UsdPrice: int32(price) * 100, // just set to the same currency for now
+	}
+	serBytes, err := proto.Marshal(&roundTrip)
+	if err != nil {
+		return "", fmt.Errorf("could not serialise round trip: %v", err)
+	}
+
+	return base64.RawURLEncoding.EncodeToString(serBytes), nil
+}
+
+func (o *RoundTripOffer) getReturnFlightReqData(ctx context.Context) (string, error) {
+	rawData, err := o.s.getRawData(ctx, o.args, serialiseOutboundFlights(o.Flight))
+	if err != nil {
+		return "", err
+	}
+
+	// not strictly required in the request
+	serRoundTrip, err := serialiseRoundTrip(o.token, o.Flight, o.Price, o.args.Options.Currency)
+	if err != nil {
+		return "", fmt.Errorf("could not serialise round trip: %v", err)
+	}
+	prefix := fmt.Sprintf(`[null, "[[null, %s],`, serRoundTrip)
+	suffix := `],null,null,null,1,null,null,null,null,null,[]],1,0,0]"]`
+
+	reqData := prefix + rawData + suffix
+	return url.QueryEscape(reqData), nil
+}
+
+func (o *RoundTripOffer) doRequestFlights(ctx context.Context) (*http.Response, error) {
+	url := "https://www.google.com/_/FlightsFrontendUi/data/travel.frontend.flights.FlightsFrontendService/GetShoppingResults?f.sid=-1300922759171628473&bl=boq_travel-frontend-ui_20230627.02_p1&hl=en&soc-app=162&soc-platform=1&soc-device=1&_reqid=52717&rt=c"
+
+	reqDate, err := o.getReturnFlightReqData(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("could not get request data: %v", err)
+	}
+
+	jsonBody := []byte(
+		`f.req=` + reqDate +
+			`&at=AAuQa1qjMakasqKYcQeoFJjN7RZ3%3A` + strconv.FormatInt(time.Now().Unix(), 10) + `&`)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(jsonBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to do GetShoppingResults request: %v", err)
+	}
+	req.Header.Set("accept", `*/*`)
+	req.Header.Set("accept-language", `en-US,en;q=0.9`)
+	req.Header.Set("cache-control", `no-cache`)
+	req.Header.Set("content-type", `application/x-www-form-urlencoded;charset=UTF-8`)
+	req.Header["cookie"] = o.s.cookies
+	req.Header.Set("pragma", `no-cache`)
+	req.Header.Set("user-agent", `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36`)
+	req.Header.Set("x-goog-ext-259736195-jspb",
+		fmt.Sprintf(`["en-US","US","%s",1,null,[-120],null,[[48676280,48710756,47907128,48764689,48627726,48480739,48593234,48707380]],1,[]]`, o.args.Options.Currency)) // language, location, Currency
+
+	return o.s.client.Do(req)
+}
+
+func (o *RoundTripOffer) GetReturnFlights(ctx context.Context) ([]RoundTripFlight, error) {
+	finalOffers := []RoundTripFlight{}
+
+	resp, err := o.doRequestFlights(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body := bufio.NewReader(resp.Body)
+	utils.SkipPrefix(body)
+
+	for {
+		utils.ReadLine(body) // skip line
+		bytesToDecode, err := utils.GetInnerBytes(body)
+		if err != nil {
+			return finalOffers, nil
+		}
+
+		offers, _, _ := getSectionOffers(bytesToDecode, o.args.ReturnDate)
+		for _, offer := range offers {
+			finalOffers = append(finalOffers, RoundTripFlight{
+				Flight: offer.Flight,
+				Price:  offer.Price,
+			})
 		}
 	}
 }
