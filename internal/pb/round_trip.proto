@@ -1,0 +1,19 @@
+syntax = "proto3";
+package url;
+
+option go_package = "github.com/tobyrushton/gflights//internal/pb";
+
+message RoundTrip {
+    message Price {
+        int32 amount = 1;
+        int32 precision = 2;
+        string currency = 3;
+    }
+
+    string token = 1;
+    string flight_number = 2;
+    Price price = 3;
+    // unsure on what this value represents, should be set to 28.
+    int32 unknown = 7;
+    int32 usd_price = 14;
+}
