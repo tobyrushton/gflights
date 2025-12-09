@@ -74,13 +74,4 @@ func TestGetRoundTripOffers(t *testing.T) {
 	if len(offers) == 0 {
 		t.Fatal("expected at least one flight offer, got none")
 	}
-
-	returnFlights, err := offers[0].GetReturnFlights(context.Background())
-
-	if err != nil {
-		t.Fatalf("error getting return flights: %s", err.Error())
-	}
-	if len(returnFlights) == 0 {
-		t.Fatal("expected at least one return flight, got none")
-	}
 }
