@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,13 +11,8 @@ import (
 	"strconv"
 	"time"
 
-	_ "time/tzdata"
-
-	"github.com/tobyrushton/gflights/internal/pb"
 	"github.com/tobyrushton/gflights/internal/utils"
-	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
-	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -56,17 +50,43 @@ func (s *Session) serialiseFlightLocations(ctx context.Context, cities []string,
 	return serialised[:len(serialised)-1], nil
 }
 
-func serialiseFlightTravelers(args Args) string {
+func serialiseFlightTravelers(travelers Travelers) string {
 	return fmt.Sprintf(
 		`[%d,%d,%d,%d]`,
-		args.Options.Travelers.Adults,
-		args.Options.Travelers.Children,
-		args.Options.Travelers.InfantsOnLap,
-		args.Options.Travelers.InfantsInSeat,
+		travelers.Adults,
+		travelers.Children,
+		travelers.InfantsOnLap,
+		travelers.InfantsInSeat,
 	)
 }
 
-func (s *Session) getRawData(ctx context.Context, args Args, outboundFlights string) (string, error) {
+func serialiseFlightRoute(flights []Flight) string {
+	if len(flights) == 0 {
+		return ""
+	}
+
+	serFlights := ""
+
+	for _, flight := range flights {
+		serFlights += fmt.Sprintf(
+			`[\"%s\",\"%s\",\"%s\",null,\"%s\",\"%s\"],`,
+			flight.DepAirportCode,
+			flight.DepTime.Format("2006-01-02"),
+			flight.ArrAirportCode,
+			flight.FlightCode.AirlineCode,
+			flight.FlightCode.FlightNumber,
+		)
+	}
+	return serFlights[:len(serFlights)-1]
+}
+
+type rawDataArgs struct {
+	Args
+
+	OutboundFlights []Flight
+}
+
+func (s *Session) getRawData(ctx context.Context, args rawDataArgs) (string, error) {
 	serSrcs, err := s.serialiseFlightLocations(ctx, args.SrcCities, args.SrcAirports, args.Options.Lang)
 	if err != nil {
 		return "", fmt.Errorf("could not serialize src flight src locations: %v", err)
@@ -79,8 +99,9 @@ func (s *Session) getRawData(ctx context.Context, args Args, outboundFlights str
 	serDate := args.DepartureDate.Format("2006-01-02")
 	serReturnDate := args.ReturnDate.Format("2006-01-02")
 
-	serAdults := serialiseFlightTravelers(args)
+	serAdults := serialiseFlightTravelers(args.Options.Travelers)
 	serStops := serialiseFlightStop(args.Options.Stops)
+	outboundFlights := serialiseFlightRoute(args.OutboundFlights)
 
 	rawData := ""
 
@@ -98,13 +119,16 @@ func (s *Session) getRawData(ctx context.Context, args Args, outboundFlights str
 	return rawData, nil
 }
 
-func (s *Session) getFlightReqData(ctx context.Context, args Args) (string, error) {
-	rawData, err := s.getRawData(ctx, args, "")
+func (s *Session) getFlightReqData(ctx context.Context, args requestFlightArgs) (string, error) {
+	rawData, err := s.getRawData(ctx, args.rawDataArgs)
 	if err != nil {
 		return "", err
 	}
 
 	prefix := `[null,"[[],`
+	if args.FlightsSession != "" {
+		prefix = fmt.Sprintf(`[null, "[[null, %s],`, args.FlightsSession)
+	}
 	suffix := `],null,null,null,1,null,null,null,null,null,[]],1,0,0]"]`
 
 	reqData := prefix
@@ -114,16 +138,22 @@ func (s *Session) getFlightReqData(ctx context.Context, args Args) (string, erro
 	return url.QueryEscape(reqData), nil
 }
 
-func (s *Session) doRequestFlights(ctx context.Context, args Args) (*http.Response, error) {
+type requestFlightArgs struct {
+	rawDataArgs
+
+	FlightsSession string
+}
+
+func (s *Session) doRequestFlights(ctx context.Context, args requestFlightArgs) (*http.Response, error) {
 	url := "https://www.google.com/_/FlightsFrontendUi/data/travel.frontend.flights.FlightsFrontendService/GetShoppingResults?f.sid=-1300922759171628473&bl=boq_travel-frontend-ui_20230627.02_p1&hl=en&soc-app=162&soc-platform=1&soc-device=1&_reqid=52717&rt=c"
 
-	reqDate, err := s.getFlightReqData(ctx, args)
+	reqData, err := s.getFlightReqData(ctx, args)
 	if err != nil {
 		return nil, fmt.Errorf("could not get request data: %v", err)
 	}
 
 	jsonBody := []byte(
-		`f.req=` + reqDate +
+		`f.req=` + reqData +
 			`&at=AAuQa1qjMakasqKYcQeoFJjN7RZ3%3A` + strconv.FormatInt(time.Now().Unix(), 10) + `&`)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(jsonBody))
@@ -231,10 +261,22 @@ func offerSchema(rawFlights *[]json.RawMessage, price *float64) *[]any {
 	return &[]any{&[]any{nil, nil, rawFlights}, &[]any{&[]any{nil, price}}}
 }
 
-func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]OneWayOffer, error) {
-	offers := []OneWayOffer{}
+type offer struct {
+	Flight         []Flight
+	StartDate      time.Time
+	ReturnDate     time.Time
+	Duration       time.Duration
+	SrcAirportCode string
+	DstAirportCode string
+	SrcCity        string
+	DstCity        string
+	Price          float64
+}
+
+func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]offer, error) {
+	offers := []offer{}
 	for _, rawOffer := range rawOffers {
-		offer := OneWayOffer{}
+		offer := offer{}
 		rawFlights := []json.RawMessage{}
 
 		if string(rawOffer) == "null" {
@@ -273,7 +315,7 @@ func sectionOffersSchema(rawOffers1, rawOffers2 *[]json.RawMessage, priceRange *
 		&[]any{nil, &priceRange.Min}, &[]any{nil, &priceRange.Max}}}
 }
 
-func getSectionOffers(bytesToDecode []byte, returnDate time.Time) ([]OneWayOffer, *PriceRange, error) {
+func getSectionOffers(bytesToDecode []byte, returnDate time.Time) ([]offer, *PriceRange, error) {
 	rawOffers1 := []json.RawMessage{}
 	rawOffers2 := []json.RawMessage{}
 
@@ -283,7 +325,7 @@ func getSectionOffers(bytesToDecode []byte, returnDate time.Time) ([]OneWayOffer
 		return nil, nil, err
 	}
 
-	allOffers := []OneWayOffer{}
+	allOffers := []offer{}
 	offers1, err := getSubsectionOffers(rawOffers1, returnDate)
 	if err != nil {
 		return nil, nil, err
@@ -296,40 +338,6 @@ func getSectionOffers(bytesToDecode []byte, returnDate time.Time) ([]OneWayOffer
 	allOffers = append(allOffers, offers2...)
 
 	return allOffers, &priceRange, nil
-}
-
-func (s *Session) GetOffers(ctx context.Context, args Args) ([]OneWayOffer, *PriceRange, error) {
-	if err := args.Validate(); err != nil {
-		return nil, nil, err
-	}
-
-	finalOffers := []OneWayOffer{}
-	var finalPriceRange *PriceRange
-
-	resp, err := s.doRequestFlights(ctx, args)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer resp.Body.Close()
-
-	body := bufio.NewReader(resp.Body)
-	utils.SkipPrefix(body)
-
-	for {
-		utils.ReadLine(body) // skip line
-		bytesToDecode, err := utils.GetInnerBytes(body)
-		if err != nil {
-			return finalOffers, finalPriceRange, nil
-		}
-
-		offers, priceRange, _ := getSectionOffers(bytesToDecode, args.ReturnDate)
-		if offers != nil {
-			finalOffers = append(finalOffers, offers...)
-		}
-		if priceRange != nil {
-			finalPriceRange = priceRange
-		}
-	}
 }
 
 func getToken(bytes []byte) string {
@@ -350,17 +358,13 @@ func getToken(bytes []byte) string {
 	return token
 }
 
-func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTripOffer, *PriceRange, error) {
-	if err := args.Validate(); err != nil {
-		return nil, nil, err
-	}
-
-	finalOffers := []RoundTripOffer{}
+func (s *Session) doGetOffers(ctx context.Context, args requestFlightArgs) ([]offer, *PriceRange, string, error) {
+	finalOffers := []offer{}
 	var finalPriceRange *PriceRange
 
 	resp, err := s.doRequestFlights(ctx, args)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, "", err
 	}
 	defer resp.Body.Close()
 
@@ -372,145 +376,87 @@ func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTri
 		utils.ReadLine(body) // skip line
 		bytesToDecode, err := utils.GetInnerBytes(body)
 		if err != nil {
-			return finalOffers, finalPriceRange, nil
+			return finalOffers, finalPriceRange, token, nil
 		}
 
-		if t := getToken(bytesToDecode); t != "" {
-			token = t
+		if token == "" {
+			token = getToken(bytesToDecode)
 		}
 
 		offers, priceRange, _ := getSectionOffers(bytesToDecode, args.ReturnDate)
-		for _, offer := range offers {
-			finalOffers = append(finalOffers, RoundTripOffer{
-				OneWayOffer: offer,
-				s:           s,
-				token:       token,
-				args:        args,
-			})
-		}
+		finalOffers = append(finalOffers, offers...)
 		if priceRange != nil {
 			finalPriceRange = priceRange
 		}
 	}
 }
 
-func serialiseOutboundFlights(flights []Flight) string {
-	serFlights := ""
-
-	for _, flight := range flights {
-		serFlights += fmt.Sprintf(
-			`[\"%s\",\"%s\",\"%s\",null,\"%s\",\"%s\"],`,
-			flight.DepAirportCode,
-			flight.DepTime.Format("2006-01-02"),
-			flight.ArrAirportCode,
-			flight.FlightCode.AirlineCode,
-			flight.FlightCode.FlightNumber,
-		)
+func (s *Session) GetOneWayOffers(ctx context.Context, args Args) ([]OneWayOffer, *PriceRange, error) {
+	if err := args.Validate(); err != nil {
+		return nil, nil, err
 	}
 
-	return serFlights[:len(serFlights)-1]
-}
-
-func serialiseRoundTrip(token string, flights []Flight, price float64, currency currency.Unit) (string, error) {
-	flightCodes := func() string {
-		out := ""
-		for _, flight := range flights {
-			out += fmt.Sprintf("%s%s|", flight.FlightCode.AirlineCode, flight.FlightCode.FlightNumber)
-		}
-		return out[:len(out)-1]
-	}()
-
-	roundTrip := pb.RoundTrip{
-		Token:        token,
-		FlightNumber: flightCodes,
-		Price: &pb.RoundTrip_Price{
-			Amount:    int32(price) * 100,
-			Currency:  currency.String(),
-			Precision: 1,
+	offers, priceRange, _, err := s.doGetOffers(ctx, requestFlightArgs{
+		rawDataArgs: rawDataArgs{
+			Args: args,
 		},
-		Unknown:  28,
-		UsdPrice: int32(price) * 100, // just set to the same currency for now
-	}
-	serBytes, err := proto.Marshal(&roundTrip)
+	})
 	if err != nil {
-		return "", fmt.Errorf("could not serialise round trip: %v", err)
+		return nil, nil, err
 	}
 
-	return base64.RawURLEncoding.EncodeToString(serBytes), nil
-}
-
-func (o *RoundTripOffer) getReturnFlightReqData(ctx context.Context) (string, error) {
-	rawData, err := o.s.getRawData(ctx, o.args, serialiseOutboundFlights(o.Flight))
-	if err != nil {
-		return "", err
-	}
-
-	// not strictly required in the request
-	serRoundTrip, err := serialiseRoundTrip(o.token, o.Flight, o.Price, o.args.Options.Currency)
-	if err != nil {
-		return "", fmt.Errorf("could not serialise round trip: %v", err)
-	}
-	prefix := fmt.Sprintf(`[null, "[[null, %s],`, serRoundTrip)
-	suffix := `],null,null,null,1,null,null,null,null,null,[]],1,0,0]"]`
-
-	reqData := prefix + rawData + suffix
-	return url.QueryEscape(reqData), nil
-}
-
-func (o *RoundTripOffer) doRequestFlights(ctx context.Context) (*http.Response, error) {
-	url := "https://www.google.com/_/FlightsFrontendUi/data/travel.frontend.flights.FlightsFrontendService/GetShoppingResults?f.sid=-1300922759171628473&bl=boq_travel-frontend-ui_20230627.02_p1&hl=en&soc-app=162&soc-platform=1&soc-device=1&_reqid=52717&rt=c"
-
-	reqDate, err := o.getReturnFlightReqData(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("could not get request data: %v", err)
-	}
-
-	jsonBody := []byte(
-		`f.req=` + reqDate +
-			`&at=AAuQa1qjMakasqKYcQeoFJjN7RZ3%3A` + strconv.FormatInt(time.Now().Unix(), 10) + `&`)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(jsonBody))
-	if err != nil {
-		return nil, fmt.Errorf("failed to do GetShoppingResults request: %v", err)
-	}
-	req.Header.Set("accept", `*/*`)
-	req.Header.Set("accept-language", `en-US,en;q=0.9`)
-	req.Header.Set("cache-control", `no-cache`)
-	req.Header.Set("content-type", `application/x-www-form-urlencoded;charset=UTF-8`)
-	req.Header["cookie"] = o.s.cookies
-	req.Header.Set("pragma", `no-cache`)
-	req.Header.Set("user-agent", `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36`)
-	req.Header.Set("x-goog-ext-259736195-jspb",
-		fmt.Sprintf(`["en-US","US","%s",1,null,[-120],null,[[48676280,48710756,47907128,48764689,48627726,48480739,48593234,48707380]],1,[]]`, o.args.Options.Currency)) // language, location, Currency
-
-	return o.s.client.Do(req)
-}
-
-func (o *RoundTripOffer) GetReturnFlights(ctx context.Context) ([]RoundTripFlight, error) {
-	finalOffers := []RoundTripFlight{}
-
-	resp, err := o.doRequestFlights(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body := bufio.NewReader(resp.Body)
-	utils.SkipPrefix(body)
-
-	for {
-		utils.ReadLine(body) // skip line
-		bytesToDecode, err := utils.GetInnerBytes(body)
-		if err != nil {
-			return finalOffers, nil
-		}
-
-		offers, _, _ := getSectionOffers(bytesToDecode, o.args.ReturnDate)
-		for _, offer := range offers {
-			finalOffers = append(finalOffers, RoundTripFlight{
-				Flight: offer.Flight,
-				Price:  offer.Price,
-			})
+	finalOffers := make([]OneWayOffer, len(offers))
+	for i, offer := range offers {
+		finalOffers[i] = OneWayOffer{
+			SimpleOffer: SimpleOffer{
+				StartDate: offer.StartDate,
+				Price:     offer.Price,
+			},
+			Flight:         offer.Flight,
+			SrcAirportCode: offer.SrcAirportCode,
+			DstAirportCode: offer.DstAirportCode,
+			SrcCity:        offer.SrcCity,
+			DstCity:        offer.DstCity,
 		}
 	}
+
+	return finalOffers, priceRange, nil
+}
+
+func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTripOffer, *PriceRange, error) {
+	if err := args.Validate(); err != nil {
+		return nil, nil, err
+	}
+
+	offers, priceRange, token, err := s.doGetOffers(ctx, requestFlightArgs{
+		rawDataArgs: rawDataArgs{
+			Args: args,
+		},
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	finalOffers := make([]RoundTripOffer, len(offers))
+	for i, offer := range offers {
+		finalOffers[i] = RoundTripOffer{
+			OneWayOffer: OneWayOffer{
+				SimpleOffer: SimpleOffer{
+					StartDate:  offer.StartDate,
+					ReturnDate: offer.ReturnDate,
+					Price:      offer.Price,
+				},
+				Flight:         offer.Flight,
+				SrcAirportCode: offer.SrcAirportCode,
+				DstAirportCode: offer.DstAirportCode,
+				SrcCity:        offer.SrcCity,
+				DstCity:        offer.DstCity,
+			},
+			s:     s,
+			token: token,
+			args:  args,
+		}
+	}
+
+	return finalOffers, priceRange, nil
 }

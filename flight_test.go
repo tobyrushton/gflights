@@ -15,7 +15,7 @@ func TestGetOneWayOffers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	offers, _, err := session.GetOffers(
+	offers, _, err := session.GetOneWayOffers(
 		context.Background(),
 		Args{
 			DepartureDate: time.Now().AddDate(0, 6, 0),
