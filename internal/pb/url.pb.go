@@ -511,7 +511,7 @@ const file_url_proto_rawDesc = "" +
 	"\x10UNSPECIFIED_TRIP\x10\x00\x12\x0e\n" +
 	"\n" +
 	"ROUND_TRIP\x10\x01\x12\v\n" +
-	"\aONE_WAY\x10\x02B5Z3github.com/tobyrushton/gflights/flights/internal/pbb\x06proto3"
+	"\aONE_WAY\x10\x02B-Z+github.com/tobyrushton/gflights/internal/pbb\x06proto3"
 
 var (
 	file_url_proto_rawDescOnce sync.Once

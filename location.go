@@ -1,4 +1,4 @@
-package flights
+package gflights
 
 import (
 	"bufio"
@@ -13,7 +13,7 @@ import (
 	"time"
 
 	anyascii "github.com/anyascii/go"
-	"github.com/tobyrushton/gflights/flights/internal/utils"
+	"github.com/tobyrushton/gflights/internal/utils"
 	"golang.org/x/text/language"
 )
 

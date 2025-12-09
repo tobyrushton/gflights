@@ -1,4 +1,4 @@
-package flights
+package gflights
 
 import (
 	"fmt"
@@ -153,4 +153,62 @@ func (a *Args) Validate() error {
 		return err
 	}
 	return nil
+}
+
+type FlightCode struct {
+	AirlineCode  string // airline code
+	FlightNumber string // flight number
+}
+
+// Flight describes a single, one-way flight.
+type Flight struct {
+	DepAirportCode string        // departure airport code
+	DepAirportName string        // departure airport name
+	DepCity        string        // departure city
+	ArrAirportName string        // arrival airport name
+	ArrAirportCode string        // arrival airport code
+	ArrCity        string        // arrival city
+	DepTime        time.Time     // departure time
+	ArrTime        time.Time     // arrival time
+	Duration       time.Duration // duration of the flight
+	Airplane       string        // airplane model
+	FlightCode     FlightCode    // flight code
+	Unknown        []any         // it contains all unknown data which are parsed from the Google Flights API
+	AirlineName    string        // airline name
+	Legroom        string        // legroom in the airplane seats
+}
+
+type SimpleOffer struct {
+	StartDate  time.Time // start date of the offer
+	ReturnDate time.Time // return date of the offer
+	Price      float64   // price of the offer
+}
+
+type OneWayOffer struct {
+	SimpleOffer
+
+	Flight         []Flight      // contains all flights in the trip
+	SrcAirportCode string        // code of the airport where the trip starts
+	DstAirportCode string        // destination airport
+	SrcCity        string        // source city
+	DstCity        string        // destination city
+	Duration       time.Duration // total duration of the trip
+}
+
+type PriceRange struct {
+	Min float64 // minimum price
+	Max float64 // maximum price
+}
+
+type RoundTripOffer struct {
+	OneWayOffer
+
+	s     *Session
+	token string
+	args  Args
+}
+
+type RoundTripFlight struct {
+	Flight []Flight
+	Price  float64
 }

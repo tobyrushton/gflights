@@ -1,4 +1,4 @@
-package flights
+package gflights
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tobyrushton/gflights/flights/internal/pb"
+	"github.com/tobyrushton/gflights/internal/pb"
 	"google.golang.org/protobuf/proto"
 )
 
