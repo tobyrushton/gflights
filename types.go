@@ -222,3 +222,74 @@ type TripSelection struct {
 	TripType  TripType
 	Travelers Travelers
 }
+
+func truncateToDay(date time.Time) time.Time {
+	return date.Truncate(24 * time.Hour)
+}
+
+func validateRangeDate(rangeStartDate time.Time, rangeEndDate time.Time) error {
+	now := truncateToDay(time.Now())
+
+	days := int(rangeEndDate.Sub(rangeStartDate).Hours() / 24)
+	if days > 161 {
+		return fmt.Errorf("number of days between dates is larger than 161, %d", days)
+	}
+	if rangeEndDate.Equal(rangeStartDate) {
+		return fmt.Errorf("range start date cannot be the same as range end date")
+	}
+	if rangeEndDate.Before(rangeStartDate) {
+		return fmt.Errorf("range end date cannot be before range start date")
+	}
+	if rangeStartDate.Before(now) {
+		return fmt.Errorf("range start date cannot be in the past")
+	}
+	return nil
+}
+
+type PriceGraphArgs struct {
+	RangeStartDate, RangeEndDate                   time.Time // days range of the price graph
+	TripLength                                     int       // number of days between start trip date and return date
+	SrcCities, SrcAirports, DstCities, DstAirports []string  // source and destination; cities and airports of the trip
+	Options                                        Options   // additional options
+}
+
+// Validates PriceGraphArgs requirements:
+//   - at least one source location (srcCities / srcAirports)
+//   - at least one destination location (dstCities / dstAirports)
+//   - srcAirports and dstAirports have to be in the right IATA format: https://en.wikipedia.org/wiki/IATA_airport_code
+//   - dates have to be in the chronological order: today's date -> RangeStartDate -> RangeEndDate
+//   - the difference between RangeStartDate and RangeEndDate cannot be higher than 161 days
+func (a *PriceGraphArgs) Validate() error {
+	if err := validateLocations(a.SrcCities, a.SrcAirports, a.DstCities, a.DstAirports); err != nil {
+		return err
+	}
+
+	a.RangeStartDate = truncateToDay(a.RangeStartDate)
+	a.RangeEndDate = truncateToDay(a.RangeEndDate)
+
+	if err := validateRangeDate(a.RangeStartDate, a.RangeEndDate); err != nil {
+		return err
+	}
+
+	if a.TripLength < 1 {
+		return fmt.Errorf("trip length must be at least 1 day")
+	}
+
+	if err := a.Options.Travelers.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *PriceGraphArgs) Convert() Args {
+	return Args{
+		DepartureDate: a.RangeStartDate,
+		ReturnDate:    a.RangeStartDate.AddDate(0, 0, a.TripLength),
+		SrcCities:     a.SrcCities,
+		SrcAirports:   a.SrcAirports,
+		DstCities:     a.DstCities,
+		DstAirports:   a.DstAirports,
+		Options:       a.Options,
+	}
+}
