@@ -211,4 +211,14 @@ type RoundTripOffer struct {
 type RoundTripFlight struct {
 	Flight []Flight
 	Price  float64
+	token  string
+}
+
+type FlightSegment struct {
+	Legs []Flight // Contains the legs of the segment
+}
+
+type TripSelection struct {
+	Segments []FlightSegment // Contains the different segments of the flight (e.g., outbound and return)
+	Price    float64
 }

@@ -64,3 +64,26 @@ func (o *RoundTripOffer) GetReturnFlights(ctx context.Context) ([]RoundTripFligh
 	}
 	return finalOffers, nil
 }
+
+func (o *RoundTripOffer) SelectReturnFlight(returnFlight RoundTripOffer) (*TripSelection, error) {
+	if o.token != returnFlight.token {
+		return nil, fmt.Errorf("cannot select return flight from different offer")
+	}
+	return &TripSelection{
+		Segments: []FlightSegment{{
+			Legs: o.Flight,
+		}, {
+			Legs: returnFlight.Flight,
+		}},
+		Price: returnFlight.Price,
+	}, nil
+}
+
+func (o *OneWayOffer) Select() *TripSelection {
+	return &TripSelection{
+		Segments: []FlightSegment{{
+			Legs: o.Flight,
+		}},
+		Price: o.Price,
+	}
+}
