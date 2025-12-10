@@ -237,11 +237,8 @@ func getFlights(rawFlights []json.RawMessage) ([]Flight, error) {
 		)); err != nil {
 			return nil, err
 		}
-		// TODO: implement iataLocation function to get the correct location based on airport code
-		// depCity, depLocation := iataLocation(flight.DepAirportCode)
-		// arrCity, arrLocation := iataLocation(flight.ArrAirportCode)
-		depCity, depLocation := flight.DepAirportCode, time.UTC
-		arrCity, arrLocation := flight.ArrAirportCode, time.UTC
+		depCity, depLocation := iataLocation(flight.DepAirportCode)
+		arrCity, arrLocation := iataLocation(flight.ArrAirportCode)
 		flight.DepCity = depCity
 		flight.DepTime = time.Date(int(depYear), time.Month(depMonth), int(depDay), int(depHours), int(depMinutes), 0, 0, depLocation)
 		flight.ArrCity = arrCity
