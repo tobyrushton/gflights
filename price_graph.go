@@ -16,9 +16,35 @@ import (
 )
 
 func (s *Session) getPriceGraphRawData(ctx context.Context, args PriceGraphArgs) (string, error) {
-	return s.getRawData(ctx, rawDataArgs{
-		Args: args.Convert(),
-	})
+	serSrcs, err := s.serialiseFlightLocations(ctx, args.SrcCities, args.SrcAirports, args.Options.Lang)
+	if err != nil {
+		return "", err
+	}
+	serDsts, err := s.serialiseFlightLocations(ctx, args.DstCities, args.DstAirports, args.Options.Lang)
+	if err != nil {
+		return "", err
+	}
+
+	serDate := args.RangeStartDate.Format("2006-01-02")
+	serReturnDate := args.RangeEndDate.Format("2006-01-02")
+
+	serTravelers := serialiseFlightTravelers(args.Options.Travelers)
+	serStops := serialiseFlightStop(args.Options.Stops)
+
+	rawData := ""
+
+	rawData += fmt.Sprintf(`[null,null,%d,null,[],%d,%s,null,null,null,null,null,null,[`,
+		args.Options.TripType, args.Options.Class, serTravelers)
+
+	rawData += fmt.Sprintf(`[[[%s]],[[%s]],null,%s,null,null,\"%s\",null,null,null,null,null,null,null,3]`,
+		serSrcs, serDsts, serStops, serDate)
+
+	if args.Options.TripType == RoundTrip {
+		rawData += fmt.Sprintf(`,[[[%s]],[[%s]],null,%s,null,null,\"%s\",null,null,null,null,null,null,null,3]`,
+			serDsts, serSrcs, serStops, serReturnDate)
+	}
+
+	return rawData, nil
 }
 
 func (s *Session) getPriceGraphReqData(ctx context.Context, args PriceGraphArgs) (string, error) {
@@ -31,8 +57,12 @@ func (s *Session) getPriceGraphReqData(ctx context.Context, args PriceGraphArgs)
 	}
 
 	prefix := `[null,"[null,`
-	suffix := fmt.Sprintf(`],null,null,null,1,null,null,null,null,null,[]],[\"%s\",\"%s\"],null,[%d,%d]]"]`,
-		serializedRangeStartDate, serializedRangeEndDate, args.TripLength, args.TripLength)
+	suffix := fmt.Sprintf(`],null,null,null,1],[\"%s\",\"%s\"]]"]`,
+		serializedRangeStartDate, serializedRangeEndDate)
+	if args.Options.TripType == RoundTrip {
+		suffix = fmt.Sprintf(`],null,null,null,1,null,null,null,null,null,[]],[\"%s\",\"%s\"],null,[%d,%d]]"]`,
+			serializedRangeStartDate, serializedRangeEndDate, args.TripLength, args.TripLength)
+	}
 
 	reqData := prefix
 	reqData += rawData
@@ -53,7 +83,6 @@ func (s *Session) doRequestPriceGraph(ctx context.Context, args PriceGraphArgs) 
 		`f.req=` + reqDate +
 			`&at=AAuQa1oq5qIkgkQ2nG9vQZFTgSME%3A` + strconv.FormatInt(time.Now().Unix(), 10) + `&`)
 
-	fmt.Println("doRequestPriceGraph: request body:", string(jsonBody))
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(jsonBody))
 	if err != nil {
 		return nil, err
@@ -100,7 +129,7 @@ func getPriceGraphSection(bytesToDecode []byte) ([]SimpleOffer, error) {
 		if finalOffer.StartDate, err = time.Parse("2006-01-02", startDate); err != nil {
 			continue
 		}
-		if finalOffer.ReturnDate, err = time.Parse("2006-01-02", returnDate); err != nil {
+		if finalOffer.ReturnDate, err = time.Parse("2006-01-02", returnDate); err != nil && returnDate != "" {
 			continue
 		}
 
@@ -122,7 +151,6 @@ func (s *Session) GetPriceGraph(ctx context.Context, args PriceGraphArgs) ([]Sim
 		return nil, err
 	}
 	defer resp.Body.Close()
-	fmt.Println("GetPriceGraph: HTTP status", resp.StatusCode)
 
 	body := bufio.NewReader(resp.Body)
 	utils.SkipPrefix(body)
