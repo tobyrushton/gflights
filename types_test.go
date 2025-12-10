@@ -75,3 +75,82 @@ func TestValidateTravelers(t *testing.T) {
 	}
 	testValidate(t, args, "one adult is required for every two infants")
 }
+
+func TestValidatePriceGraphArgs(t *testing.T) {
+	args := &PriceGraphArgs{
+		SrcCities:      []string{"abc"},
+		SrcAirports:    []string{},
+		DstCities:      []string{},
+		DstAirports:    []string{},
+		RangeStartDate: time.Now().AddDate(0, 0, 1),
+		RangeEndDate:   time.Now().AddDate(0, 0, 10),
+		TripLength:     5,
+	}
+	testValidate(t, args, "at least one destination city or airport is required")
+
+	args = &PriceGraphArgs{
+		SrcCities:      []string{},
+		SrcAirports:    []string{},
+		DstCities:      []string{"abc"},
+		DstAirports:    []string{},
+		RangeStartDate: time.Now().AddDate(0, 0, 1),
+		RangeEndDate:   time.Now().AddDate(0, 0, 10),
+		TripLength:     5,
+	}
+	testValidate(t, args, "at least one source city or airport is required")
+
+	args = &PriceGraphArgs{
+		SrcCities:      []string{"abc"},
+		SrcAirports:    []string{},
+		DstCities:      []string{"abc"},
+		DstAirports:    []string{},
+		RangeStartDate: time.Now().AddDate(0, 0, 10),
+		RangeEndDate:   time.Now().AddDate(0, 0, 1),
+		TripLength:     5,
+	}
+	testValidate(t, args, "range end date cannot be before range start date")
+
+	args = &PriceGraphArgs{
+		SrcCities:      []string{"abc"},
+		SrcAirports:    []string{},
+		DstCities:      []string{"abc"},
+		DstAirports:    []string{},
+		RangeStartDate: time.Now().AddDate(0, 0, -1),
+		RangeEndDate:   time.Now().AddDate(0, 0, 10),
+		TripLength:     5,
+	}
+	testValidate(t, args, "range start date cannot be in the past")
+
+	args = &PriceGraphArgs{
+		SrcCities:      []string{"abc"},
+		SrcAirports:    []string{},
+		DstCities:      []string{"abc"},
+		DstAirports:    []string{},
+		RangeStartDate: time.Now().AddDate(0, 0, 1),
+		RangeEndDate:   time.Now().AddDate(0, 0, 10),
+		TripLength:     0,
+	}
+	testValidate(t, args, "trip length must be at least 1 day")
+
+	args = &PriceGraphArgs{
+		SrcCities:      []string{"abc"},
+		SrcAirports:    []string{},
+		DstCities:      []string{"abc"},
+		DstAirports:    []string{},
+		RangeStartDate: time.Now().AddDate(0, 0, 1),
+		RangeEndDate:   time.Now().AddDate(0, 0, 1),
+		TripLength:     15,
+	}
+	testValidate(t, args, "range start date cannot be the same as range end date")
+
+	args = &PriceGraphArgs{
+		SrcCities:      []string{"abc"},
+		SrcAirports:    []string{},
+		DstCities:      []string{"abc"},
+		DstAirports:    []string{},
+		RangeStartDate: time.Now().AddDate(0, 0, 1),
+		RangeEndDate:   time.Now().AddDate(0, 0, 163),
+		TripLength:     15,
+	}
+	testValidate(t, args, "number of days between dates is larger than 161, 162")
+}
