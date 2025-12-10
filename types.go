@@ -219,6 +219,9 @@ type FlightSegment struct {
 }
 
 type TripSelection struct {
-	Segments []FlightSegment // Contains the different segments of the flight (e.g., outbound and return)
-	Price    float64
+	Segments  []FlightSegment // Contains the different segments of the flight (e.g., outbound and return)
+	Price     float64
+	Class     Class
+	TripType  TripType
+	Travelers Travelers
 }

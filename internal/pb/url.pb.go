@@ -23,124 +23,124 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Url_Stops int32
+type Stops int32
 
 const (
-	Url_NONSTOP Url_Stops = 0
-	Url_STOP1   Url_Stops = 1
-	Url_STOP2   Url_Stops = 2
+	Stops_NONSTOP Stops = 0
+	Stops_STOP1   Stops = 1
+	Stops_STOP2   Stops = 2
 )
 
-// Enum value maps for Url_Stops.
+// Enum value maps for Stops.
 var (
-	Url_Stops_name = map[int32]string{
+	Stops_name = map[int32]string{
 		0: "NONSTOP",
 		1: "STOP1",
 		2: "STOP2",
 	}
-	Url_Stops_value = map[string]int32{
+	Stops_value = map[string]int32{
 		"NONSTOP": 0,
 		"STOP1":   1,
 		"STOP2":   2,
 	}
 )
 
-func (x Url_Stops) Enum() *Url_Stops {
-	p := new(Url_Stops)
+func (x Stops) Enum() *Stops {
+	p := new(Stops)
 	*p = x
 	return p
 }
 
-func (x Url_Stops) String() string {
+func (x Stops) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Url_Stops) Descriptor() protoreflect.EnumDescriptor {
+func (Stops) Descriptor() protoreflect.EnumDescriptor {
 	return file_url_proto_enumTypes[0].Descriptor()
 }
 
-func (Url_Stops) Type() protoreflect.EnumType {
+func (Stops) Type() protoreflect.EnumType {
 	return &file_url_proto_enumTypes[0]
 }
 
-func (x Url_Stops) Number() protoreflect.EnumNumber {
+func (x Stops) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Url_Stops.Descriptor instead.
-func (Url_Stops) EnumDescriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0, 0}
+// Deprecated: Use Stops.Descriptor instead.
+func (Stops) EnumDescriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{0}
 }
 
-type Url_LocationType int32
+type LocationType int32
 
 const (
-	Url_UNSPECIFIED_L Url_LocationType = 0
-	Url_AIRPORT       Url_LocationType = 1
-	Url_CITY          Url_LocationType = 2
+	LocationType_UNSPECIFIED_L LocationType = 0
+	LocationType_AIRPORT       LocationType = 1
+	LocationType_CITY          LocationType = 2
 )
 
-// Enum value maps for Url_LocationType.
+// Enum value maps for LocationType.
 var (
-	Url_LocationType_name = map[int32]string{
+	LocationType_name = map[int32]string{
 		0: "UNSPECIFIED_L",
 		1: "AIRPORT",
 		2: "CITY",
 	}
-	Url_LocationType_value = map[string]int32{
+	LocationType_value = map[string]int32{
 		"UNSPECIFIED_L": 0,
 		"AIRPORT":       1,
 		"CITY":          2,
 	}
 )
 
-func (x Url_LocationType) Enum() *Url_LocationType {
-	p := new(Url_LocationType)
+func (x LocationType) Enum() *LocationType {
+	p := new(LocationType)
 	*p = x
 	return p
 }
 
-func (x Url_LocationType) String() string {
+func (x LocationType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Url_LocationType) Descriptor() protoreflect.EnumDescriptor {
+func (LocationType) Descriptor() protoreflect.EnumDescriptor {
 	return file_url_proto_enumTypes[1].Descriptor()
 }
 
-func (Url_LocationType) Type() protoreflect.EnumType {
+func (LocationType) Type() protoreflect.EnumType {
 	return &file_url_proto_enumTypes[1]
 }
 
-func (x Url_LocationType) Number() protoreflect.EnumNumber {
+func (x LocationType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Url_LocationType.Descriptor instead.
-func (Url_LocationType) EnumDescriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0, 1}
+// Deprecated: Use LocationType.Descriptor instead.
+func (LocationType) EnumDescriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{1}
 }
 
-type Url_Traveler int32
+type Traveler int32
 
 const (
-	Url_UNSPECIFIED_T  Url_Traveler = 0
-	Url_ADULT          Url_Traveler = 1
-	Url_CHILD          Url_Traveler = 2
-	Url_INFANT_ON_LAP  Url_Traveler = 3
-	Url_INFANT_IN_SEAT Url_Traveler = 4
+	Traveler_UNSPECIFIED_T  Traveler = 0
+	Traveler_ADULT          Traveler = 1
+	Traveler_CHILD          Traveler = 2
+	Traveler_INFANT_ON_LAP  Traveler = 3
+	Traveler_INFANT_IN_SEAT Traveler = 4
 )
 
-// Enum value maps for Url_Traveler.
+// Enum value maps for Traveler.
 var (
-	Url_Traveler_name = map[int32]string{
+	Traveler_name = map[int32]string{
 		0: "UNSPECIFIED_T",
 		1: "ADULT",
 		2: "CHILD",
 		3: "INFANT_ON_LAP",
 		4: "INFANT_IN_SEAT",
 	}
-	Url_Traveler_value = map[string]int32{
+	Traveler_value = map[string]int32{
 		"UNSPECIFIED_T":  0,
 		"ADULT":          1,
 		"CHILD":          2,
@@ -149,53 +149,53 @@ var (
 	}
 )
 
-func (x Url_Traveler) Enum() *Url_Traveler {
-	p := new(Url_Traveler)
+func (x Traveler) Enum() *Traveler {
+	p := new(Traveler)
 	*p = x
 	return p
 }
 
-func (x Url_Traveler) String() string {
+func (x Traveler) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Url_Traveler) Descriptor() protoreflect.EnumDescriptor {
+func (Traveler) Descriptor() protoreflect.EnumDescriptor {
 	return file_url_proto_enumTypes[2].Descriptor()
 }
 
-func (Url_Traveler) Type() protoreflect.EnumType {
+func (Traveler) Type() protoreflect.EnumType {
 	return &file_url_proto_enumTypes[2]
 }
 
-func (x Url_Traveler) Number() protoreflect.EnumNumber {
+func (x Traveler) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Url_Traveler.Descriptor instead.
-func (Url_Traveler) EnumDescriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0, 2}
+// Deprecated: Use Traveler.Descriptor instead.
+func (Traveler) EnumDescriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{2}
 }
 
-type Url_Class int32
+type Class int32
 
 const (
-	Url_UNSPECIFIED_CLASS Url_Class = 0
-	Url_ECONOMY           Url_Class = 1
-	Url_PREMIUM_ECONOMY   Url_Class = 2
-	Url_BUSINESS          Url_Class = 3
-	Url_FIRST             Url_Class = 4
+	Class_UNSPECIFIED_CLASS Class = 0
+	Class_ECONOMY           Class = 1
+	Class_PREMIUM_ECONOMY   Class = 2
+	Class_BUSINESS          Class = 3
+	Class_FIRST             Class = 4
 )
 
-// Enum value maps for Url_Class.
+// Enum value maps for Class.
 var (
-	Url_Class_name = map[int32]string{
+	Class_name = map[int32]string{
 		0: "UNSPECIFIED_CLASS",
 		1: "ECONOMY",
 		2: "PREMIUM_ECONOMY",
 		3: "BUSINESS",
 		4: "FIRST",
 	}
-	Url_Class_value = map[string]int32{
+	Class_value = map[string]int32{
 		"UNSPECIFIED_CLASS": 0,
 		"ECONOMY":           1,
 		"PREMIUM_ECONOMY":   2,
@@ -204,173 +204,105 @@ var (
 	}
 )
 
-func (x Url_Class) Enum() *Url_Class {
-	p := new(Url_Class)
+func (x Class) Enum() *Class {
+	p := new(Class)
 	*p = x
 	return p
 }
 
-func (x Url_Class) String() string {
+func (x Class) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Url_Class) Descriptor() protoreflect.EnumDescriptor {
+func (Class) Descriptor() protoreflect.EnumDescriptor {
 	return file_url_proto_enumTypes[3].Descriptor()
 }
 
-func (Url_Class) Type() protoreflect.EnumType {
+func (Class) Type() protoreflect.EnumType {
 	return &file_url_proto_enumTypes[3]
 }
 
-func (x Url_Class) Number() protoreflect.EnumNumber {
+func (x Class) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Url_Class.Descriptor instead.
-func (Url_Class) EnumDescriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0, 3}
+// Deprecated: Use Class.Descriptor instead.
+func (Class) EnumDescriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{3}
 }
 
-type Url_TripType int32
+type TripType int32
 
 const (
-	Url_UNSPECIFIED_TRIP Url_TripType = 0
-	Url_ROUND_TRIP       Url_TripType = 1
-	Url_ONE_WAY          Url_TripType = 2
+	TripType_UNSPECIFIED_TRIP TripType = 0
+	TripType_ROUND_TRIP       TripType = 1
+	TripType_ONE_WAY          TripType = 2
 )
 
-// Enum value maps for Url_TripType.
+// Enum value maps for TripType.
 var (
-	Url_TripType_name = map[int32]string{
+	TripType_name = map[int32]string{
 		0: "UNSPECIFIED_TRIP",
 		1: "ROUND_TRIP",
 		2: "ONE_WAY",
 	}
-	Url_TripType_value = map[string]int32{
+	TripType_value = map[string]int32{
 		"UNSPECIFIED_TRIP": 0,
 		"ROUND_TRIP":       1,
 		"ONE_WAY":          2,
 	}
 )
 
-func (x Url_TripType) Enum() *Url_TripType {
-	p := new(Url_TripType)
+func (x TripType) Enum() *TripType {
+	p := new(TripType)
 	*p = x
 	return p
 }
 
-func (x Url_TripType) String() string {
+func (x TripType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Url_TripType) Descriptor() protoreflect.EnumDescriptor {
+func (TripType) Descriptor() protoreflect.EnumDescriptor {
 	return file_url_proto_enumTypes[4].Descriptor()
 }
 
-func (Url_TripType) Type() protoreflect.EnumType {
+func (TripType) Type() protoreflect.EnumType {
 	return &file_url_proto_enumTypes[4]
 }
 
-func (x Url_TripType) Number() protoreflect.EnumNumber {
+func (x TripType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Url_TripType.Descriptor instead.
-func (Url_TripType) EnumDescriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0, 4}
+// Deprecated: Use TripType.Descriptor instead.
+func (TripType) EnumDescriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{4}
 }
 
-type Url struct {
+type Location struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Flight        []*Url_Flight          `protobuf:"bytes,3,rep,name=flight,proto3" json:"flight,omitempty"`
-	Travelers     []Url_Traveler         `protobuf:"varint,8,rep,packed,name=travelers,proto3,enum=url.Url_Traveler" json:"travelers,omitempty"`
-	Class         Url_Class              `protobuf:"varint,9,opt,name=class,proto3,enum=url.Url_Class" json:"class,omitempty"`
-	TripType      Url_TripType           `protobuf:"varint,19,opt,name=tripType,proto3,enum=url.Url_TripType" json:"tripType,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Url) Reset() {
-	*x = Url{}
-	mi := &file_url_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Url) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Url) ProtoMessage() {}
-
-func (x *Url) ProtoReflect() protoreflect.Message {
-	mi := &file_url_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Url.ProtoReflect.Descriptor instead.
-func (*Url) Descriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *Url) GetFlight() []*Url_Flight {
-	if x != nil {
-		return x.Flight
-	}
-	return nil
-}
-
-func (x *Url) GetTravelers() []Url_Traveler {
-	if x != nil {
-		return x.Travelers
-	}
-	return nil
-}
-
-func (x *Url) GetClass() Url_Class {
-	if x != nil {
-		return x.Class
-	}
-	return Url_UNSPECIFIED_CLASS
-}
-
-func (x *Url) GetTripType() Url_TripType {
-	if x != nil {
-		return x.TripType
-	}
-	return Url_UNSPECIFIED_TRIP
-}
-
-type Url_Location struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          Url_LocationType       `protobuf:"varint,1,opt,name=type,proto3,enum=url.Url_LocationType" json:"type,omitempty"`
+	Type          LocationType           `protobuf:"varint,1,opt,name=type,proto3,enum=url.LocationType" json:"type,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Url_Location) Reset() {
-	*x = Url_Location{}
-	mi := &file_url_proto_msgTypes[1]
+func (x *Location) Reset() {
+	*x = Location{}
+	mi := &file_url_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Url_Location) String() string {
+func (x *Location) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Url_Location) ProtoMessage() {}
+func (*Location) ProtoMessage() {}
 
-func (x *Url_Location) ProtoReflect() protoreflect.Message {
-	mi := &file_url_proto_msgTypes[1]
+func (x *Location) ProtoReflect() protoreflect.Message {
+	mi := &file_url_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,49 +313,118 @@ func (x *Url_Location) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Url_Location.ProtoReflect.Descriptor instead.
-func (*Url_Location) Descriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0, 0}
+// Deprecated: Use Location.ProtoReflect.Descriptor instead.
+func (*Location) Descriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Url_Location) GetType() Url_LocationType {
+func (x *Location) GetType() LocationType {
 	if x != nil {
 		return x.Type
 	}
-	return Url_UNSPECIFIED_L
+	return LocationType_UNSPECIFIED_L
 }
 
-func (x *Url_Location) GetName() string {
+func (x *Location) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-type Url_Flight struct {
+type SearchFlight struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Date          string                 `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	Stops         *Url_Stops             `protobuf:"varint,5,opt,name=stops,proto3,enum=url.Url_Stops,oneof" json:"stops,omitempty"`
-	SrcLocations  []*Url_Location        `protobuf:"bytes,13,rep,name=srcLocations,proto3" json:"srcLocations,omitempty"`
-	DstLocations  []*Url_Location        `protobuf:"bytes,14,rep,name=dstLocations,proto3" json:"dstLocations,omitempty"`
+	Stops         *Stops                 `protobuf:"varint,5,opt,name=stops,proto3,enum=url.Stops,oneof" json:"stops,omitempty"`
+	SrcLocations  []*Location            `protobuf:"bytes,13,rep,name=srcLocations,proto3" json:"srcLocations,omitempty"`
+	DstLocations  []*Location            `protobuf:"bytes,14,rep,name=dstLocations,proto3" json:"dstLocations,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Url_Flight) Reset() {
-	*x = Url_Flight{}
+func (x *SearchFlight) Reset() {
+	*x = SearchFlight{}
+	mi := &file_url_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchFlight) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchFlight) ProtoMessage() {}
+
+func (x *SearchFlight) ProtoReflect() protoreflect.Message {
+	mi := &file_url_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchFlight.ProtoReflect.Descriptor instead.
+func (*SearchFlight) Descriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SearchFlight) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+func (x *SearchFlight) GetStops() Stops {
+	if x != nil && x.Stops != nil {
+		return *x.Stops
+	}
+	return Stops_NONSTOP
+}
+
+func (x *SearchFlight) GetSrcLocations() []*Location {
+	if x != nil {
+		return x.SrcLocations
+	}
+	return nil
+}
+
+func (x *SearchFlight) GetDstLocations() []*Location {
+	if x != nil {
+		return x.DstLocations
+	}
+	return nil
+}
+
+type Flight struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DepCode       string                 `protobuf:"bytes,1,opt,name=dep_code,json=depCode,proto3" json:"dep_code,omitempty"`
+	Date          string                 `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	DestCode      string                 `protobuf:"bytes,3,opt,name=dest_code,json=destCode,proto3" json:"dest_code,omitempty"`
+	AirlineCode   string                 `protobuf:"bytes,5,opt,name=airline_code,json=airlineCode,proto3" json:"airline_code,omitempty"`
+	FlightNumber  string                 `protobuf:"bytes,6,opt,name=flight_number,json=flightNumber,proto3" json:"flight_number,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Flight) Reset() {
+	*x = Flight{}
 	mi := &file_url_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Url_Flight) String() string {
+func (x *Flight) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Url_Flight) ProtoMessage() {}
+func (*Flight) ProtoMessage() {}
 
-func (x *Url_Flight) ProtoReflect() protoreflect.Message {
+func (x *Flight) ProtoReflect() protoreflect.Message {
 	mi := &file_url_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -435,78 +436,309 @@ func (x *Url_Flight) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Url_Flight.ProtoReflect.Descriptor instead.
-func (*Url_Flight) Descriptor() ([]byte, []int) {
-	return file_url_proto_rawDescGZIP(), []int{0, 1}
+// Deprecated: Use Flight.ProtoReflect.Descriptor instead.
+func (*Flight) Descriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Url_Flight) GetDate() string {
+func (x *Flight) GetDepCode() string {
+	if x != nil {
+		return x.DepCode
+	}
+	return ""
+}
+
+func (x *Flight) GetDate() string {
 	if x != nil {
 		return x.Date
 	}
 	return ""
 }
 
-func (x *Url_Flight) GetStops() Url_Stops {
-	if x != nil && x.Stops != nil {
-		return *x.Stops
+func (x *Flight) GetDestCode() string {
+	if x != nil {
+		return x.DestCode
 	}
-	return Url_NONSTOP
+	return ""
 }
 
-func (x *Url_Flight) GetSrcLocations() []*Url_Location {
+func (x *Flight) GetAirlineCode() string {
+	if x != nil {
+		return x.AirlineCode
+	}
+	return ""
+}
+
+func (x *Flight) GetFlightNumber() string {
+	if x != nil {
+		return x.FlightNumber
+	}
+	return ""
+}
+
+type BookingFlight struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Date          string                 `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	Flights       []*Flight              `protobuf:"bytes,4,rep,name=flights,proto3" json:"flights,omitempty"`
+	SrcLocations  []*Location            `protobuf:"bytes,13,rep,name=srcLocations,proto3" json:"srcLocations,omitempty"`
+	DstLocations  []*Location            `protobuf:"bytes,14,rep,name=dstLocations,proto3" json:"dstLocations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BookingFlight) Reset() {
+	*x = BookingFlight{}
+	mi := &file_url_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BookingFlight) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BookingFlight) ProtoMessage() {}
+
+func (x *BookingFlight) ProtoReflect() protoreflect.Message {
+	mi := &file_url_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BookingFlight.ProtoReflect.Descriptor instead.
+func (*BookingFlight) Descriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *BookingFlight) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+func (x *BookingFlight) GetFlights() []*Flight {
+	if x != nil {
+		return x.Flights
+	}
+	return nil
+}
+
+func (x *BookingFlight) GetSrcLocations() []*Location {
 	if x != nil {
 		return x.SrcLocations
 	}
 	return nil
 }
 
-func (x *Url_Flight) GetDstLocations() []*Url_Location {
+func (x *BookingFlight) GetDstLocations() []*Location {
 	if x != nil {
 		return x.DstLocations
 	}
 	return nil
 }
 
+type SearchUrl struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Flight        []*SearchFlight        `protobuf:"bytes,3,rep,name=flight,proto3" json:"flight,omitempty"`
+	Travelers     []Traveler             `protobuf:"varint,8,rep,packed,name=travelers,proto3,enum=url.Traveler" json:"travelers,omitempty"`
+	Class         Class                  `protobuf:"varint,9,opt,name=class,proto3,enum=url.Class" json:"class,omitempty"`
+	TripType      TripType               `protobuf:"varint,19,opt,name=tripType,proto3,enum=url.TripType" json:"tripType,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchUrl) Reset() {
+	*x = SearchUrl{}
+	mi := &file_url_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchUrl) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchUrl) ProtoMessage() {}
+
+func (x *SearchUrl) ProtoReflect() protoreflect.Message {
+	mi := &file_url_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchUrl.ProtoReflect.Descriptor instead.
+func (*SearchUrl) Descriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SearchUrl) GetFlight() []*SearchFlight {
+	if x != nil {
+		return x.Flight
+	}
+	return nil
+}
+
+func (x *SearchUrl) GetTravelers() []Traveler {
+	if x != nil {
+		return x.Travelers
+	}
+	return nil
+}
+
+func (x *SearchUrl) GetClass() Class {
+	if x != nil {
+		return x.Class
+	}
+	return Class_UNSPECIFIED_CLASS
+}
+
+func (x *SearchUrl) GetTripType() TripType {
+	if x != nil {
+		return x.TripType
+	}
+	return TripType_UNSPECIFIED_TRIP
+}
+
+type BookingUrl struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Flight        []*BookingFlight       `protobuf:"bytes,3,rep,name=flight,proto3" json:"flight,omitempty"`
+	Travelers     []Traveler             `protobuf:"varint,8,rep,packed,name=travelers,proto3,enum=url.Traveler" json:"travelers,omitempty"`
+	Class         Class                  `protobuf:"varint,9,opt,name=class,proto3,enum=url.Class" json:"class,omitempty"`
+	TripType      TripType               `protobuf:"varint,19,opt,name=tripType,proto3,enum=url.TripType" json:"tripType,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BookingUrl) Reset() {
+	*x = BookingUrl{}
+	mi := &file_url_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BookingUrl) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BookingUrl) ProtoMessage() {}
+
+func (x *BookingUrl) ProtoReflect() protoreflect.Message {
+	mi := &file_url_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BookingUrl.ProtoReflect.Descriptor instead.
+func (*BookingUrl) Descriptor() ([]byte, []int) {
+	return file_url_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *BookingUrl) GetFlight() []*BookingFlight {
+	if x != nil {
+		return x.Flight
+	}
+	return nil
+}
+
+func (x *BookingUrl) GetTravelers() []Traveler {
+	if x != nil {
+		return x.Travelers
+	}
+	return nil
+}
+
+func (x *BookingUrl) GetClass() Class {
+	if x != nil {
+		return x.Class
+	}
+	return Class_UNSPECIFIED_CLASS
+}
+
+func (x *BookingUrl) GetTripType() TripType {
+	if x != nil {
+		return x.TripType
+	}
+	return TripType_UNSPECIFIED_TRIP
+}
+
 var File_url_proto protoreflect.FileDescriptor
 
 const file_url_proto_rawDesc = "" +
 	"\n" +
-	"\turl.proto\x12\x03url\"\x9d\x06\n" +
-	"\x03Url\x12'\n" +
-	"\x06flight\x18\x03 \x03(\v2\x0f.url.Url.FlightR\x06flight\x12/\n" +
-	"\ttravelers\x18\b \x03(\x0e2\x11.url.Url.TravelerR\ttravelers\x12$\n" +
-	"\x05class\x18\t \x01(\x0e2\x0e.url.Url.ClassR\x05class\x12-\n" +
-	"\btripType\x18\x13 \x01(\x0e2\x11.url.Url.TripTypeR\btripType\x1aI\n" +
-	"\bLocation\x12)\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x15.url.Url.LocationTypeR\x04type\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x1a\xbf\x01\n" +
-	"\x06Flight\x12\x12\n" +
-	"\x04date\x18\x02 \x01(\tR\x04date\x12)\n" +
-	"\x05stops\x18\x05 \x01(\x0e2\x0e.url.Url.StopsH\x00R\x05stops\x88\x01\x01\x125\n" +
-	"\fsrcLocations\x18\r \x03(\v2\x11.url.Url.LocationR\fsrcLocations\x125\n" +
-	"\fdstLocations\x18\x0e \x03(\v2\x11.url.Url.LocationR\fdstLocationsB\b\n" +
-	"\x06_stops\"*\n" +
+	"\turl.proto\x12\x03url\"E\n" +
+	"\bLocation\x12%\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x11.url.LocationTypeR\x04type\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xb9\x01\n" +
+	"\fSearchFlight\x12\x12\n" +
+	"\x04date\x18\x02 \x01(\tR\x04date\x12%\n" +
+	"\x05stops\x18\x05 \x01(\x0e2\n" +
+	".url.StopsH\x00R\x05stops\x88\x01\x01\x121\n" +
+	"\fsrcLocations\x18\r \x03(\v2\r.url.LocationR\fsrcLocations\x121\n" +
+	"\fdstLocations\x18\x0e \x03(\v2\r.url.LocationR\fdstLocationsB\b\n" +
+	"\x06_stops\"\x9c\x01\n" +
+	"\x06Flight\x12\x19\n" +
+	"\bdep_code\x18\x01 \x01(\tR\adepCode\x12\x12\n" +
+	"\x04date\x18\x02 \x01(\tR\x04date\x12\x1b\n" +
+	"\tdest_code\x18\x03 \x01(\tR\bdestCode\x12!\n" +
+	"\fairline_code\x18\x05 \x01(\tR\vairlineCode\x12#\n" +
+	"\rflight_number\x18\x06 \x01(\tR\fflightNumber\"\xb0\x01\n" +
+	"\rBookingFlight\x12\x12\n" +
+	"\x04date\x18\x02 \x01(\tR\x04date\x12%\n" +
+	"\aflights\x18\x04 \x03(\v2\v.url.FlightR\aflights\x121\n" +
+	"\fsrcLocations\x18\r \x03(\v2\r.url.LocationR\fsrcLocations\x121\n" +
+	"\fdstLocations\x18\x0e \x03(\v2\r.url.LocationR\fdstLocations\"\xb0\x01\n" +
+	"\tSearchUrl\x12)\n" +
+	"\x06flight\x18\x03 \x03(\v2\x11.url.SearchFlightR\x06flight\x12+\n" +
+	"\ttravelers\x18\b \x03(\x0e2\r.url.TravelerR\ttravelers\x12 \n" +
+	"\x05class\x18\t \x01(\x0e2\n" +
+	".url.ClassR\x05class\x12)\n" +
+	"\btripType\x18\x13 \x01(\x0e2\r.url.TripTypeR\btripType\"\xb2\x01\n" +
+	"\n" +
+	"BookingUrl\x12*\n" +
+	"\x06flight\x18\x03 \x03(\v2\x12.url.BookingFlightR\x06flight\x12+\n" +
+	"\ttravelers\x18\b \x03(\x0e2\r.url.TravelerR\ttravelers\x12 \n" +
+	"\x05class\x18\t \x01(\x0e2\n" +
+	".url.ClassR\x05class\x12)\n" +
+	"\btripType\x18\x13 \x01(\x0e2\r.url.TripTypeR\btripType**\n" +
 	"\x05Stops\x12\v\n" +
 	"\aNONSTOP\x10\x00\x12\t\n" +
 	"\x05STOP1\x10\x01\x12\t\n" +
-	"\x05STOP2\x10\x02\"8\n" +
+	"\x05STOP2\x10\x02*8\n" +
 	"\fLocationType\x12\x11\n" +
 	"\rUNSPECIFIED_L\x10\x00\x12\v\n" +
 	"\aAIRPORT\x10\x01\x12\b\n" +
-	"\x04CITY\x10\x02\"Z\n" +
+	"\x04CITY\x10\x02*Z\n" +
 	"\bTraveler\x12\x11\n" +
 	"\rUNSPECIFIED_T\x10\x00\x12\t\n" +
 	"\x05ADULT\x10\x01\x12\t\n" +
 	"\x05CHILD\x10\x02\x12\x11\n" +
 	"\rINFANT_ON_LAP\x10\x03\x12\x12\n" +
-	"\x0eINFANT_IN_SEAT\x10\x04\"Y\n" +
+	"\x0eINFANT_IN_SEAT\x10\x04*Y\n" +
 	"\x05Class\x12\x15\n" +
 	"\x11UNSPECIFIED_CLASS\x10\x00\x12\v\n" +
 	"\aECONOMY\x10\x01\x12\x13\n" +
 	"\x0fPREMIUM_ECONOMY\x10\x02\x12\f\n" +
 	"\bBUSINESS\x10\x03\x12\t\n" +
-	"\x05FIRST\x10\x04\"=\n" +
+	"\x05FIRST\x10\x04*=\n" +
 	"\bTripType\x12\x14\n" +
 	"\x10UNSPECIFIED_TRIP\x10\x00\x12\x0e\n" +
 	"\n" +
@@ -526,31 +758,41 @@ func file_url_proto_rawDescGZIP() []byte {
 }
 
 var file_url_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_url_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_url_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_url_proto_goTypes = []any{
-	(Url_Stops)(0),        // 0: url.Url.Stops
-	(Url_LocationType)(0), // 1: url.Url.LocationType
-	(Url_Traveler)(0),     // 2: url.Url.Traveler
-	(Url_Class)(0),        // 3: url.Url.Class
-	(Url_TripType)(0),     // 4: url.Url.TripType
-	(*Url)(nil),           // 5: url.Url
-	(*Url_Location)(nil),  // 6: url.Url.Location
-	(*Url_Flight)(nil),    // 7: url.Url.Flight
+	(Stops)(0),            // 0: url.Stops
+	(LocationType)(0),     // 1: url.LocationType
+	(Traveler)(0),         // 2: url.Traveler
+	(Class)(0),            // 3: url.Class
+	(TripType)(0),         // 4: url.TripType
+	(*Location)(nil),      // 5: url.Location
+	(*SearchFlight)(nil),  // 6: url.SearchFlight
+	(*Flight)(nil),        // 7: url.Flight
+	(*BookingFlight)(nil), // 8: url.BookingFlight
+	(*SearchUrl)(nil),     // 9: url.SearchUrl
+	(*BookingUrl)(nil),    // 10: url.BookingUrl
 }
 var file_url_proto_depIdxs = []int32{
-	7, // 0: url.Url.flight:type_name -> url.Url.Flight
-	2, // 1: url.Url.travelers:type_name -> url.Url.Traveler
-	3, // 2: url.Url.class:type_name -> url.Url.Class
-	4, // 3: url.Url.tripType:type_name -> url.Url.TripType
-	1, // 4: url.Url.Location.type:type_name -> url.Url.LocationType
-	0, // 5: url.Url.Flight.stops:type_name -> url.Url.Stops
-	6, // 6: url.Url.Flight.srcLocations:type_name -> url.Url.Location
-	6, // 7: url.Url.Flight.dstLocations:type_name -> url.Url.Location
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	1,  // 0: url.Location.type:type_name -> url.LocationType
+	0,  // 1: url.SearchFlight.stops:type_name -> url.Stops
+	5,  // 2: url.SearchFlight.srcLocations:type_name -> url.Location
+	5,  // 3: url.SearchFlight.dstLocations:type_name -> url.Location
+	7,  // 4: url.BookingFlight.flights:type_name -> url.Flight
+	5,  // 5: url.BookingFlight.srcLocations:type_name -> url.Location
+	5,  // 6: url.BookingFlight.dstLocations:type_name -> url.Location
+	6,  // 7: url.SearchUrl.flight:type_name -> url.SearchFlight
+	2,  // 8: url.SearchUrl.travelers:type_name -> url.Traveler
+	3,  // 9: url.SearchUrl.class:type_name -> url.Class
+	4,  // 10: url.SearchUrl.tripType:type_name -> url.TripType
+	8,  // 11: url.BookingUrl.flight:type_name -> url.BookingFlight
+	2,  // 12: url.BookingUrl.travelers:type_name -> url.Traveler
+	3,  // 13: url.BookingUrl.class:type_name -> url.Class
+	4,  // 14: url.BookingUrl.tripType:type_name -> url.TripType
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_url_proto_init() }
@@ -558,14 +800,14 @@ func file_url_proto_init() {
 	if File_url_proto != nil {
 		return
 	}
-	file_url_proto_msgTypes[2].OneofWrappers = []any{}
+	file_url_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_url_proto_rawDesc), len(file_url_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   3,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

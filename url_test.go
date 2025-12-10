@@ -88,3 +88,64 @@ func TestSerialiseURL2(t *testing.T) {
 		t.Fatalf("wrong serialised url, expected: %v serialised: %v", expectedURL, url)
 	}
 }
+
+func TestSerialiseBookingURL(t *testing.T) {
+	session, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	date, _ := time.Parse("2006-01-02", "2026-06-10")
+
+	url, err := session.SerialiseBookingURL(
+		context.Background(),
+		&TripSelection{
+			Segments: []FlightSegment{{
+				Legs: []Flight{lhrToJfkFlight(date, date)},
+			}},
+			TripType:  OneWay,
+			Travelers: Travelers{Adults: 1},
+			Class:     Economy,
+		},
+	)
+	if err != nil {
+		t.Fatalf("error during serialization: %s", err.Error())
+	}
+
+	expectedUrl := "https://www.google.com/travel/flights/booking?tfs=GkoSCjIwMjYtMDYtMTAiHwoDTEhSEgoyMDI2LTA2LTEwGgNKRksqAkJBMgMxNzdqDAgCEggvbS8wNGpwbHINCAISCS9tLzAyXzI4NkIBAUgBmAEC"
+	if expectedUrl != url {
+		t.Fatalf("wrong serialised booking url, expected: %v serialised: %v", expectedUrl, url)
+	}
+}
+
+func TestSerialiseBookingURL2(t *testing.T) {
+	session, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	depDate, _ := time.Parse("2006-01-02", "2026-06-10")
+	arrDate, _ := time.Parse("2006-01-02", "2026-06-17")
+
+	url, err := session.SerialiseBookingURL(
+		context.Background(),
+		&TripSelection{
+			Segments: []FlightSegment{{
+				Legs: []Flight{lhrToJfkFlight(depDate, depDate)},
+			}, {
+				Legs: []Flight{jfkToLhrFlight(arrDate, arrDate)},
+			}},
+			TripType:  RoundTrip,
+			Travelers: Travelers{Adults: 1},
+			Class:     Economy,
+		},
+	)
+	if err != nil {
+		t.Fatalf("error during serialization: %s", err.Error())
+	}
+
+	expectedUrl := "https://www.google.com/travel/flights/booking?tfs=GkoSCjIwMjYtMDYtMTAiHwoDTEhSEgoyMDI2LTA2LTEwGgNKRksqAkJBMgMxNzdqDAgCEggvbS8wNGpwbHINCAISCS9tLzAyXzI4NhpKEgoyMDI2LTA2LTE3Ih8KA0pGSxIKMjAyNi0wNi0xNxoDTEhSKgJCQTIDMTgwagwIAhIIL20vMDRqcGxyDQgCEgkvbS8wMl8yODZCAQFIAZgBAQ"
+	if expectedUrl != url {
+		t.Fatalf("wrong serialised booking url, expected: %v serialised: %v", expectedUrl, url)
+	}
+}
