@@ -13,6 +13,7 @@ import (
 	"time"
 
 	anyascii "github.com/anyascii/go"
+	"github.com/tobyrushton/gflights/iata"
 	"github.com/tobyrushton/gflights/internal/utils"
 	"golang.org/x/text/language"
 )
@@ -44,9 +45,9 @@ func (s *Session) doRequestLocation(ctx context.Context, city string, lang langu
 	return s.client.Do(req)
 }
 
-func abbrCitySchema(city, abbrCity *string) *[][][][]interface{} {
+func abbrCitySchema(city, abbrCity *string) *[][][][]any {
 	// [[[[3,"",city,"",abbrCity,null,null,null,null,null,null,3],...]]]
-	return &[][][][]interface{}{{{{nil, nil, city, nil, abbrCity}}}}
+	return &[][][][]any{{{{nil, nil, city, nil, abbrCity}}}}
 }
 
 func compareStrLatin(lv, rv string) bool {
@@ -122,4 +123,13 @@ func (s *Session) abbrCities(ctx context.Context, cities []string, lang language
 		abbrCities = append(abbrCities, sc)
 	}
 	return abbrCities, nil
+}
+
+func iataLocation(iataCode string) (string, *time.Location) {
+	iataLocation := iata.IATATimeZone(iataCode)
+	location, err := time.LoadLocation(iataLocation.Tz)
+	if err != nil {
+		return iataLocation.City, time.UTC
+	}
+	return iataLocation.City, location
 }
