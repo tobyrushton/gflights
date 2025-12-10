@@ -40,7 +40,7 @@ func (s *Session) getPriceGraphRawData(ctx context.Context, args PriceGraphArgs)
 		serSrcs, serDsts, serStops, serDate)
 
 	if args.Options.TripType == RoundTrip {
-		rawData += fmt.Sprintf(`,[[[%s]],[[%s]],null,%s,null,null,\"%s\",null,null,null,null,null,null,null,3]`,
+		rawData += fmt.Sprintf(`,[[[%s]],[[%s]],null,%s,null,null,\"%s\",null,null,null,null,null,null,null,1]`,
 			serDsts, serSrcs, serStops, serReturnDate)
 	}
 

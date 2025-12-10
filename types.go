@@ -293,3 +293,30 @@ func (a *PriceGraphArgs) Convert() Args {
 		Options:       a.Options,
 	}
 }
+
+type PriceGridArgs struct {
+	StartDepartureRange, EndDepartureRange         time.Time // departure date range
+	StartReturnRange, EndReturnRange               time.Time // return date range
+	SrcCities, SrcAirports, DstCities, DstAirports []string  // source and destination; cities and airports of the trip
+	Options                                        Options   // additional options
+}
+
+func (a *PriceGridArgs) Validate() error {
+	if err := validateLocations(a.SrcCities, a.SrcAirports, a.DstCities, a.DstAirports); err != nil {
+		return err
+	}
+
+	a.StartDepartureRange = truncateToDay(a.StartDepartureRange)
+	a.EndDepartureRange = truncateToDay(a.EndDepartureRange)
+	a.StartReturnRange = truncateToDay(a.StartReturnRange)
+	a.EndReturnRange = truncateToDay(a.EndReturnRange)
+
+	if err := validateRangeDate(a.StartDepartureRange, a.EndDepartureRange); err != nil {
+		return fmt.Errorf("departure date range invalid: %w", err)
+	}
+	if err := validateRangeDate(a.StartReturnRange, a.EndReturnRange); err != nil {
+		return fmt.Errorf("return date range invalid: %w", err)
+	}
+
+	return nil
+}
