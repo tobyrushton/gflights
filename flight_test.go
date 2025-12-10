@@ -15,7 +15,7 @@ func TestGetOneWayOffers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	offers, _, err := session.GetOneWayOffers(
+	offers, _, err := session.GetOutboundOffers(
 		context.Background(),
 		Args{
 			DepartureDate: time.Now().AddDate(0, 6, 0),
@@ -62,7 +62,7 @@ func TestGetRoundTripOffers(t *testing.T) {
 		},
 	}
 
-	offers, _, err := session.GetRoundTripOffers(
+	offers, _, err := session.GetOutboundOffers(
 		context.Background(),
 		args,
 	)

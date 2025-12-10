@@ -184,15 +184,19 @@ type SimpleOffer struct {
 	Price      float64   // price of the offer
 }
 
-type OneWayOffer struct {
+type OutboundOffer struct {
 	SimpleOffer
 
-	Flight         []Flight      // contains all flights in the trip
+	Flight         []Flight
 	SrcAirportCode string        // code of the airport where the trip starts
 	DstAirportCode string        // destination airport
 	SrcCity        string        // source city
 	DstCity        string        // destination city
 	Duration       time.Duration // total duration of the trip
+
+	s     *Session
+	token string
+	args  Args
 }
 
 type PriceRange struct {
@@ -200,18 +204,11 @@ type PriceRange struct {
 	Max float64 // maximum price
 }
 
-type RoundTripOffer struct {
-	OneWayOffer
-
-	s     *Session
-	token string
-	args  Args
-}
-
-type RoundTripFlight struct {
+type ReturnOffer struct {
 	Flight []Flight
 	Price  float64
-	token  string
+
+	token string
 }
 
 type FlightSegment struct {

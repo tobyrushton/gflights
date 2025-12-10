@@ -388,39 +388,7 @@ func (s *Session) doGetOffers(ctx context.Context, args requestFlightArgs) ([]of
 	}
 }
 
-func (s *Session) GetOneWayOffers(ctx context.Context, args Args) ([]OneWayOffer, *PriceRange, error) {
-	if err := args.Validate(); err != nil {
-		return nil, nil, err
-	}
-
-	offers, priceRange, _, err := s.doGetOffers(ctx, requestFlightArgs{
-		rawDataArgs: rawDataArgs{
-			Args: args,
-		},
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	finalOffers := make([]OneWayOffer, len(offers))
-	for i, offer := range offers {
-		finalOffers[i] = OneWayOffer{
-			SimpleOffer: SimpleOffer{
-				StartDate: offer.StartDate,
-				Price:     offer.Price,
-			},
-			Flight:         offer.Flight,
-			SrcAirportCode: offer.SrcAirportCode,
-			DstAirportCode: offer.DstAirportCode,
-			SrcCity:        offer.SrcCity,
-			DstCity:        offer.DstCity,
-		}
-	}
-
-	return finalOffers, priceRange, nil
-}
-
-func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTripOffer, *PriceRange, error) {
+func (s *Session) GetOutboundOffers(ctx context.Context, args Args) ([]OutboundOffer, *PriceRange, error) {
 	if err := args.Validate(); err != nil {
 		return nil, nil, err
 	}
@@ -434,24 +402,21 @@ func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTri
 		return nil, nil, err
 	}
 
-	finalOffers := make([]RoundTripOffer, len(offers))
+	finalOffers := make([]OutboundOffer, len(offers))
 	for i, offer := range offers {
-		finalOffers[i] = RoundTripOffer{
-			OneWayOffer: OneWayOffer{
-				SimpleOffer: SimpleOffer{
-					StartDate:  offer.StartDate,
-					ReturnDate: offer.ReturnDate,
-					Price:      offer.Price,
-				},
-				Flight:         offer.Flight,
-				SrcAirportCode: offer.SrcAirportCode,
-				DstAirportCode: offer.DstAirportCode,
-				SrcCity:        offer.SrcCity,
-				DstCity:        offer.DstCity,
+		finalOffers[i] = OutboundOffer{
+			SimpleOffer: SimpleOffer{
+				StartDate: offer.StartDate,
+				Price:     offer.Price,
 			},
-			s:     s,
-			token: token,
-			args:  args,
+			Flight:         offer.Flight,
+			SrcAirportCode: offer.SrcAirportCode,
+			DstAirportCode: offer.DstAirportCode,
+			SrcCity:        offer.SrcCity,
+			DstCity:        offer.DstCity,
+			s:              s,
+			token:          token,
+			args:           args,
 		}
 	}
 

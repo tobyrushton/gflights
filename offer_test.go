@@ -62,19 +62,17 @@ func TestGetReturnFlights(t *testing.T) {
 	depTime := time.Date(baseDate.Year(), baseDate.Month(), baseDate.Day(), 8, 20, 0, 0, ukTZ)
 	arrTime := time.Date(baseDate.Year(), baseDate.Month(), baseDate.Day(), 11, 20, 0, 0, nyTZ)
 
-	offer := RoundTripOffer{
-		OneWayOffer: OneWayOffer{
-			SimpleOffer: SimpleOffer{
-				StartDate:  time.Now().AddDate(0, 6, 0),
-				ReturnDate: time.Now().AddDate(0, 6, 7),
-				Price:      496,
-			},
-			Flight:         []Flight{lhrToJfkFlight(depTime, arrTime)},
-			SrcAirportCode: "LHR",
-			DstAirportCode: "JFK",
-			Duration:       8 * time.Hour,
+	offer := OutboundOffer{
+		SimpleOffer: SimpleOffer{
+			StartDate:  time.Now().AddDate(0, 6, 0),
+			ReturnDate: time.Now().AddDate(0, 6, 7),
+			Price:      496,
 		},
-		s: s,
+		Flight:         []Flight{lhrToJfkFlight(depTime, arrTime)},
+		SrcAirportCode: "LHR",
+		DstAirportCode: "JFK",
+		Duration:       8 * time.Hour,
+		s:              s,
 		args: Args{
 			Options: Options{
 				Currency: currency.GBP,
