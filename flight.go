@@ -20,6 +20,30 @@ const (
 	flightCityConst    rune = '5'
 )
 
+type rawDataArgs struct {
+	Args
+
+	OutboundFlights []Flight
+}
+
+type requestFlightArgs struct {
+	rawDataArgs
+
+	FlightsSession string
+}
+
+type offer struct {
+	Flight         []Flight
+	StartDate      time.Time
+	ReturnDate     time.Time
+	Duration       time.Duration
+	SrcAirportCode string
+	DstAirportCode string
+	SrcCity        string
+	DstCity        string
+	Price          float64
+}
+
 func serialiseFlightStop(stops Stops) string {
 	switch stops {
 	case NonStop:
@@ -80,12 +104,6 @@ func serialiseFlightRoute(flights []Flight) string {
 	return serFlights[:len(serFlights)-1]
 }
 
-type rawDataArgs struct {
-	Args
-
-	OutboundFlights []Flight
-}
-
 func (s *Session) getRawData(ctx context.Context, args rawDataArgs) (string, error) {
 	serSrcs, err := s.serialiseFlightLocations(ctx, args.SrcCities, args.SrcAirports, args.Options.Lang)
 	if err != nil {
@@ -136,12 +154,6 @@ func (s *Session) getFlightReqData(ctx context.Context, args requestFlightArgs) 
 	reqData += suffix
 
 	return url.QueryEscape(reqData), nil
-}
-
-type requestFlightArgs struct {
-	rawDataArgs
-
-	FlightsSession string
 }
 
 func (s *Session) doRequestFlights(ctx context.Context, args requestFlightArgs) (*http.Response, error) {
@@ -256,18 +268,6 @@ func getFlights(rawFlights []json.RawMessage) ([]Flight, error) {
 
 func offerSchema(rawFlights *[]json.RawMessage, price *float64) *[]any {
 	return &[]any{&[]any{nil, nil, rawFlights}, &[]any{&[]any{nil, price}}}
-}
-
-type offer struct {
-	Flight         []Flight
-	StartDate      time.Time
-	ReturnDate     time.Time
-	Duration       time.Duration
-	SrcAirportCode string
-	DstAirportCode string
-	SrcCity        string
-	DstCity        string
-	Price          float64
 }
 
 func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]offer, error) {
