@@ -20,6 +20,30 @@ const (
 	flightCityConst    rune = '5'
 )
 
+type rawDataArgs struct {
+	Args
+
+	OutboundFlights []Flight
+}
+
+type requestFlightArgs struct {
+	rawDataArgs
+
+	FlightsSession string
+}
+
+type offer struct {
+	Flight         []Flight
+	StartDate      time.Time
+	ReturnDate     time.Time
+	Duration       time.Duration
+	SrcAirportCode string
+	DstAirportCode string
+	SrcCity        string
+	DstCity        string
+	Price          float64
+}
+
 func serialiseFlightStop(stops Stops) string {
 	switch stops {
 	case NonStop:
@@ -80,12 +104,6 @@ func serialiseFlightRoute(flights []Flight) string {
 	return serFlights[:len(serFlights)-1]
 }
 
-type rawDataArgs struct {
-	Args
-
-	OutboundFlights []Flight
-}
-
 func (s *Session) getRawData(ctx context.Context, args rawDataArgs) (string, error) {
 	serSrcs, err := s.serialiseFlightLocations(ctx, args.SrcCities, args.SrcAirports, args.Options.Lang)
 	if err != nil {
@@ -136,12 +154,6 @@ func (s *Session) getFlightReqData(ctx context.Context, args requestFlightArgs) 
 	reqData += suffix
 
 	return url.QueryEscape(reqData), nil
-}
-
-type requestFlightArgs struct {
-	rawDataArgs
-
-	FlightsSession string
 }
 
 func (s *Session) doRequestFlights(ctx context.Context, args requestFlightArgs) (*http.Response, error) {
@@ -256,18 +268,6 @@ func getFlights(rawFlights []json.RawMessage) ([]Flight, error) {
 
 func offerSchema(rawFlights *[]json.RawMessage, price *float64) *[]any {
 	return &[]any{&[]any{nil, nil, rawFlights}, &[]any{&[]any{nil, price}}}
-}
-
-type offer struct {
-	Flight         []Flight
-	StartDate      time.Time
-	ReturnDate     time.Time
-	Duration       time.Duration
-	SrcAirportCode string
-	DstAirportCode string
-	SrcCity        string
-	DstCity        string
-	Price          float64
 }
 
 func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]offer, error) {
@@ -388,39 +388,7 @@ func (s *Session) doGetOffers(ctx context.Context, args requestFlightArgs) ([]of
 	}
 }
 
-func (s *Session) GetOneWayOffers(ctx context.Context, args Args) ([]OneWayOffer, *PriceRange, error) {
-	if err := args.Validate(); err != nil {
-		return nil, nil, err
-	}
-
-	offers, priceRange, _, err := s.doGetOffers(ctx, requestFlightArgs{
-		rawDataArgs: rawDataArgs{
-			Args: args,
-		},
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	finalOffers := make([]OneWayOffer, len(offers))
-	for i, offer := range offers {
-		finalOffers[i] = OneWayOffer{
-			SimpleOffer: SimpleOffer{
-				StartDate: offer.StartDate,
-				Price:     offer.Price,
-			},
-			Flight:         offer.Flight,
-			SrcAirportCode: offer.SrcAirportCode,
-			DstAirportCode: offer.DstAirportCode,
-			SrcCity:        offer.SrcCity,
-			DstCity:        offer.DstCity,
-		}
-	}
-
-	return finalOffers, priceRange, nil
-}
-
-func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTripOffer, *PriceRange, error) {
+func (s *Session) GetOutboundOffers(ctx context.Context, args Args) ([]OutboundOffer, *PriceRange, error) {
 	if err := args.Validate(); err != nil {
 		return nil, nil, err
 	}
@@ -434,24 +402,21 @@ func (s *Session) GetRoundTripOffers(ctx context.Context, args Args) ([]RoundTri
 		return nil, nil, err
 	}
 
-	finalOffers := make([]RoundTripOffer, len(offers))
+	finalOffers := make([]OutboundOffer, len(offers))
 	for i, offer := range offers {
-		finalOffers[i] = RoundTripOffer{
-			OneWayOffer: OneWayOffer{
-				SimpleOffer: SimpleOffer{
-					StartDate:  offer.StartDate,
-					ReturnDate: offer.ReturnDate,
-					Price:      offer.Price,
-				},
-				Flight:         offer.Flight,
-				SrcAirportCode: offer.SrcAirportCode,
-				DstAirportCode: offer.DstAirportCode,
-				SrcCity:        offer.SrcCity,
-				DstCity:        offer.DstCity,
+		finalOffers[i] = OutboundOffer{
+			SimpleOffer: SimpleOffer{
+				StartDate: offer.StartDate,
+				Price:     offer.Price,
 			},
-			s:     s,
-			token: token,
-			args:  args,
+			Flight:         offer.Flight,
+			SrcAirportCode: offer.SrcAirportCode,
+			DstAirportCode: offer.DstAirportCode,
+			SrcCity:        offer.SrcCity,
+			DstCity:        offer.DstCity,
+			s:              s,
+			token:          token,
+			args:           args,
 		}
 	}
 
