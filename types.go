@@ -282,18 +282,6 @@ func (a *PriceGraphArgs) Validate() error {
 	return nil
 }
 
-func (a *PriceGraphArgs) Convert() Args {
-	return Args{
-		DepartureDate: a.RangeStartDate,
-		ReturnDate:    a.RangeStartDate.AddDate(0, 0, a.TripLength),
-		SrcCities:     a.SrcCities,
-		SrcAirports:   a.SrcAirports,
-		DstCities:     a.DstCities,
-		DstAirports:   a.DstAirports,
-		Options:       a.Options,
-	}
-}
-
 type PriceGridArgs struct {
 	StartDepartureRange, EndDepartureRange         time.Time // departure date range
 	StartReturnRange, EndReturnRange               time.Time // return date range

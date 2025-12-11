@@ -77,6 +77,10 @@ func (s *Session) doRequestPriceGrid(ctx context.Context, args PriceGridArgs) (*
 }
 
 func (s *Session) GetPriceGrid(ctx context.Context, args PriceGridArgs) ([]SimpleOffer, error) {
+	if err := args.Validate(); err != nil {
+		return nil, err
+	}
+
 	resp, err := s.doRequestPriceGrid(ctx, args)
 	if err != nil {
 		return nil, err
