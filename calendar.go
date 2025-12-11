@@ -81,7 +81,7 @@ func getPriceCalendarSection(bytesToDecode []byte) ([]SimpleOffer, error) {
 		if finalOffer.ReturnDate, err = time.Parse("2006-01-02", returnDate); err != nil && returnDate != "" {
 			continue
 		}
-		if finalOffer.Price == 0 || finalOffer.ReturnDate.Before(finalOffer.StartDate) {
+		if finalOffer.Price == 0 || returnDate != "" && finalOffer.ReturnDate.Before(finalOffer.StartDate) {
 			continue
 		}
 
