@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -15,43 +14,19 @@ import (
 	"github.com/tobyrushton/gflights/internal/utils"
 )
 
-func (s *Session) getPriceGraphRawData(ctx context.Context, args PriceGraphArgs) (string, error) {
-	serSrcs, err := s.serialiseFlightLocations(ctx, args.SrcCities, args.SrcAirports, args.Options.Lang)
-	if err != nil {
-		return "", err
-	}
-	serDsts, err := s.serialiseFlightLocations(ctx, args.DstCities, args.DstAirports, args.Options.Lang)
-	if err != nil {
-		return "", err
-	}
-
-	serDate := args.RangeStartDate.Format("2006-01-02")
-	serReturnDate := args.RangeEndDate.Format("2006-01-02")
-
-	serTravelers := serialiseFlightTravelers(args.Options.Travelers)
-	serStops := serialiseFlightStop(args.Options.Stops)
-
-	rawData := ""
-
-	rawData += fmt.Sprintf(`[null,null,%d,null,[],%d,%s,null,null,null,null,null,null,[`,
-		args.Options.TripType, args.Options.Class, serTravelers)
-
-	rawData += fmt.Sprintf(`[[[%s]],[[%s]],null,%s,null,null,\"%s\",null,null,null,null,null,null,null,3]`,
-		serSrcs, serDsts, serStops, serDate)
-
-	if args.Options.TripType == RoundTrip {
-		rawData += fmt.Sprintf(`,[[[%s]],[[%s]],null,%s,null,null,\"%s\",null,null,null,null,null,null,null,1]`,
-			serDsts, serSrcs, serStops, serReturnDate)
-	}
-
-	return rawData, nil
-}
-
 func (s *Session) getPriceGraphReqData(ctx context.Context, args PriceGraphArgs) (string, error) {
 	serializedRangeStartDate := args.RangeStartDate.Format("2006-01-02")
 	serializedRangeEndDate := args.RangeEndDate.Format("2006-01-02")
 
-	rawData, err := s.getPriceGraphRawData(ctx, args)
+	rawData, err := s.getCalendarRawData(ctx, calendarArgs{
+		RangeStartDate: args.RangeStartDate,
+		RangeEndDate:   args.RangeEndDate,
+		SrcCities:      args.SrcCities,
+		SrcAirports:    args.SrcAirports,
+		DstCities:      args.DstCities,
+		DstAirports:    args.DstAirports,
+		Options:        args.Options,
+	})
 	if err != nil {
 		return "", err
 	}
@@ -100,45 +75,6 @@ func (s *Session) doRequestPriceGraph(ctx context.Context, args PriceGraphArgs) 
 	return s.client.Do(req)
 }
 
-func priceGraphSchema(startDate, returnDate *string, price *float64) *[]any {
-	// [startDate,returnDate,[[null,price],""],1]
-	return &[]any{startDate, returnDate, &[]any{&[]any{nil, price}}}
-}
-
-func getPriceGraphSection(bytesToDecode []byte) ([]SimpleOffer, error) {
-	offers := []SimpleOffer{}
-
-	var err error
-
-	rawOffers := []json.RawMessage{}
-
-	if err = json.Unmarshal([]byte(bytesToDecode), &[]any{nil, &rawOffers}); err != nil {
-		return nil, err
-	}
-
-	for _, o := range rawOffers {
-		finalOffer := SimpleOffer{}
-
-		startDate := ""
-		returnDate := ""
-
-		if err = json.Unmarshal(o, priceGraphSchema(&startDate, &returnDate, &finalOffer.Price)); err != nil {
-			continue
-		}
-
-		if finalOffer.StartDate, err = time.Parse("2006-01-02", startDate); err != nil {
-			continue
-		}
-		if finalOffer.ReturnDate, err = time.Parse("2006-01-02", returnDate); err != nil && returnDate != "" {
-			continue
-		}
-
-		offers = append(offers, finalOffer)
-	}
-
-	return offers, nil
-}
-
 func (s *Session) GetPriceGraph(ctx context.Context, args PriceGraphArgs) ([]SimpleOffer, error) {
 	if err := args.Validate(); err != nil {
 		return nil, err
@@ -165,7 +101,7 @@ func (s *Session) GetPriceGraph(ctx context.Context, args PriceGraphArgs) ([]Sim
 			return offers, nil
 		}
 
-		offers_, _ := getPriceGraphSection(bytesToDecode)
+		offers_, _ := getPriceCalendarSection(bytesToDecode)
 		offers = append(offers, offers_...)
 	}
 }

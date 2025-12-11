@@ -22,7 +22,7 @@ func (s *Session) getPriceGridReqData(ctx context.Context, args PriceGridArgs) (
 	serStartReturnRange := args.StartReturnRange.Format("2006-01-02")
 	serEndReturnRange := args.EndReturnRange.Format("2006-01-02")
 
-	rawData, err := s.getPriceGraphRawData(ctx, PriceGraphArgs{
+	rawData, err := s.getCalendarRawData(ctx, calendarArgs{
 		RangeStartDate: args.StartDepartureRange,
 		RangeEndDate:   args.StartReturnRange,
 		SrcCities:      args.SrcCities,
@@ -94,7 +94,7 @@ func (s *Session) GetPriceGrid(ctx context.Context, args PriceGridArgs) ([]Simpl
 		if err != nil {
 			return offers, nil
 		}
-		offers_, _ := getPriceGraphSection(bytesToDecode)
+		offers_, _ := getPriceCalendarSection(bytesToDecode)
 		offers = append(offers, offers_...)
 	}
 }
