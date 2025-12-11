@@ -179,9 +179,9 @@ type Flight struct {
 }
 
 type SimpleOffer struct {
-	StartDate  time.Time // start date of the offer
-	ReturnDate time.Time // return date of the offer
-	Price      float64   // price of the offer
+	DepartureDate time.Time // start date of the offer
+	ReturnDate    time.Time // return date of the offer
+	Price         float64   // price of the offer
 }
 
 type OutboundOffer struct {
