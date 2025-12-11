@@ -406,8 +406,8 @@ func (s *Session) GetOutboundOffers(ctx context.Context, args Args) ([]OutboundO
 	for i, offer := range offers {
 		finalOffers[i] = OutboundOffer{
 			SimpleOffer: SimpleOffer{
-				StartDate: offer.StartDate,
-				Price:     offer.Price,
+				DepartureDate: offer.StartDate,
+				Price:         offer.Price,
 			},
 			Flight:         offer.Flight,
 			SrcAirportCode: offer.SrcAirportCode,

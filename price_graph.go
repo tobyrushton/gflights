@@ -96,7 +96,7 @@ func (s *Session) GetPriceGraph(ctx context.Context, args PriceGraphArgs) ([]Sim
 		bytesToDecode, err := utils.GetInnerBytes(body)
 		if err != nil {
 			sort.Slice(offers, func(i, j int) bool {
-				return offers[i].StartDate.Before(offers[j].StartDate)
+				return offers[i].DepartureDate.Before(offers[j].DepartureDate)
 			})
 			return offers, nil
 		}

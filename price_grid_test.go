@@ -112,9 +112,9 @@ func TestPriceGridCrossOver(t *testing.T) {
 	}
 
 	for _, offer := range offers {
-		if offer.ReturnDate.Before(offer.StartDate) {
+		if offer.ReturnDate.Before(offer.DepartureDate) {
 			t.Fatalf("Found offer with return date before departure date: Departure %s, Return %s",
-				offer.StartDate.Format("2006-01-02"),
+				offer.DepartureDate.Format("2006-01-02"),
 				offer.ReturnDate.Format("2006-01-02"))
 		}
 	}
