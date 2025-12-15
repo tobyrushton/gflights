@@ -64,9 +64,9 @@ func TestGetReturnFlights(t *testing.T) {
 
 	offer := OutboundOffer{
 		SimpleOffer: SimpleOffer{
-			StartDate:  time.Now().AddDate(0, 6, 0),
-			ReturnDate: time.Now().AddDate(0, 6, 7),
-			Price:      496,
+			DepartureDate: time.Now().AddDate(0, 6, 0),
+			ReturnDate:    time.Now().AddDate(0, 6, 7),
+			Price:         496,
 		},
 		Flight:         []Flight{lhrToJfkFlight(depTime, arrTime)},
 		SrcAirportCode: "LHR",
