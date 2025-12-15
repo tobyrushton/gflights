@@ -1,16 +1,17 @@
-package gflights
+package gflights_test
 
 import (
 	"context"
 	"testing"
 	"time"
 
+	"github.com/tobyrushton/gflights"
 	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
 )
 
 func TestSerialiseURL1(t *testing.T) {
-	session, err := New()
+	session, err := gflights.New()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,19 +23,19 @@ func TestSerialiseURL1(t *testing.T) {
 
 	url, err := session.SerialiseURL(
 		context.Background(),
-		Args{
+		gflights.Args{
 			departuredate,
 			returnDate,
 			[]string{"Los Angeles"},
 			[]string{"SFO"},
 			[]string{"London"},
 			[]string{"CDG"},
-			Options{
-				Travelers: Travelers{Adults: 1},
+			gflights.Options{
+				Travelers: gflights.Travelers{Adults: 1},
 				Currency:  currency.GBP,
-				Stops:     OneStop,
-				Class:     Economy,
-				TripType:  RoundTrip,
+				Stops:     gflights.OneStop,
+				Class:     gflights.Economy,
+				TripType:  gflights.RoundTrip,
 				Lang:      language.English,
 			},
 		},
@@ -50,7 +51,7 @@ func TestSerialiseURL1(t *testing.T) {
 }
 
 func TestSerialiseURL2(t *testing.T) {
-	session, err := New()
+	session, err := gflights.New()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,19 +63,19 @@ func TestSerialiseURL2(t *testing.T) {
 
 	url, err := session.SerialiseURL(
 		context.Background(),
-		Args{
+		gflights.Args{
 			date,
 			returnDate,
 			[]string{"London"},
 			[]string{"SFO"},
 			[]string{"Miami"},
 			[]string{},
-			Options{
-				Travelers: Travelers{Adults: 2, Children: 1, InfantsOnLap: 1},
+			gflights.Options{
+				Travelers: gflights.Travelers{Adults: 2, Children: 1, InfantsOnLap: 1},
 				Currency:  currency.GBP,
-				Stops:     TwoPlusStops,
-				Class:     Economy,
-				TripType:  RoundTrip,
+				Stops:     gflights.TwoPlusStops,
+				Class:     gflights.Economy,
+				TripType:  gflights.RoundTrip,
 				Lang:      language.English,
 			},
 		},
@@ -90,7 +91,7 @@ func TestSerialiseURL2(t *testing.T) {
 }
 
 func TestSerialiseBookingURL(t *testing.T) {
-	session, err := New()
+	session, err := gflights.New()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,13 +100,13 @@ func TestSerialiseBookingURL(t *testing.T) {
 
 	url, err := session.SerialiseBookingURL(
 		context.Background(),
-		&TripSelection{
-			Segments: []FlightSegment{{
-				Legs: []Flight{lhrToJfkFlight(date, date)},
+		&gflights.TripSelection{
+			Segments: []gflights.FlightSegment{{
+				Legs: []gflights.Flight{lhrToJfkFlight(date, date)},
 			}},
-			TripType:  OneWay,
-			Travelers: Travelers{Adults: 1},
-			Class:     Economy,
+			TripType:  gflights.OneWay,
+			Travelers: gflights.Travelers{Adults: 1},
+			Class:     gflights.Economy,
 		},
 	)
 	if err != nil {
@@ -119,7 +120,7 @@ func TestSerialiseBookingURL(t *testing.T) {
 }
 
 func TestSerialiseBookingURL2(t *testing.T) {
-	session, err := New()
+	session, err := gflights.New()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,15 +130,15 @@ func TestSerialiseBookingURL2(t *testing.T) {
 
 	url, err := session.SerialiseBookingURL(
 		context.Background(),
-		&TripSelection{
-			Segments: []FlightSegment{{
-				Legs: []Flight{lhrToJfkFlight(depDate, depDate)},
+		&gflights.TripSelection{
+			Segments: []gflights.FlightSegment{{
+				Legs: []gflights.Flight{lhrToJfkFlight(depDate, depDate)},
 			}, {
-				Legs: []Flight{jfkToLhrFlight(arrDate, arrDate)},
+				Legs: []gflights.Flight{jfkToLhrFlight(arrDate, arrDate)},
 			}},
-			TripType:  RoundTrip,
-			Travelers: Travelers{Adults: 1},
-			Class:     Economy,
+			TripType:  gflights.RoundTrip,
+			Travelers: gflights.Travelers{Adults: 1},
+			Class:     gflights.Economy,
 		},
 	)
 	if err != nil {

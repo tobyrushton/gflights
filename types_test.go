@@ -1,8 +1,10 @@
-package gflights
+package gflights_test
 
 import (
 	"testing"
 	"time"
+
+	"github.com/tobyrushton/gflights"
 )
 
 type withValidate interface {
@@ -22,26 +24,26 @@ func testValidate(t *testing.T, args withValidate, wantErr string) {
 }
 
 func TestValidateArgs(t *testing.T) {
-	args := &Args{SrcCities: []string{"abc"}, SrcAirports: []string{}, DstCities: []string{}, DstAirports: []string{}, DepartureDate: time.Now().AddDate(0, 0, 1)}
+	args := &gflights.Args{SrcCities: []string{"abc"}, SrcAirports: []string{}, DstCities: []string{}, DstAirports: []string{}, DepartureDate: time.Now().AddDate(0, 0, 1)}
 	testValidate(t, args, "at least one destination city or airport is required")
 
-	args = &Args{SrcCities: []string{}, SrcAirports: []string{}, DstCities: []string{"abc"}, DstAirports: []string{}, DepartureDate: time.Now().AddDate(0, 0, 1)}
+	args = &gflights.Args{SrcCities: []string{}, SrcAirports: []string{}, DstCities: []string{"abc"}, DstAirports: []string{}, DepartureDate: time.Now().AddDate(0, 0, 1)}
 	testValidate(t, args, "at least one source city or airport is required")
 
-	args = &Args{SrcCities: []string{"abc"}, SrcAirports: []string{wrongAirportCode}, DstCities: []string{"abc"}, DstAirports: []string{}, DepartureDate: time.Now().AddDate(0, 0, 1)}
+	args = &gflights.Args{SrcCities: []string{"abc"}, SrcAirports: []string{wrongAirportCode}, DstCities: []string{"abc"}, DstAirports: []string{}, DepartureDate: time.Now().AddDate(0, 0, 1)}
 	testValidate(t, args, "src airport 'wrong' is not an airport code")
 
-	args = &Args{SrcCities: []string{"abc"}, SrcAirports: []string{}, DstCities: []string{"abc"}, DstAirports: []string{wrongAirportCode}, DepartureDate: time.Now().AddDate(0, 0, 1)}
+	args = &gflights.Args{SrcCities: []string{"abc"}, SrcAirports: []string{}, DstCities: []string{"abc"}, DstAirports: []string{wrongAirportCode}, DepartureDate: time.Now().AddDate(0, 0, 1)}
 	testValidate(t, args, "dst airport 'wrong' is not an airport code")
 
-	args = &Args{
+	args = &gflights.Args{
 		SrcCities: []string{"abc"}, SrcAirports: []string{}, DstCities: []string{"abc"}, DstAirports: []string{},
 		DepartureDate: time.Now().AddDate(0, 0, 3),
 		ReturnDate:    time.Now().AddDate(0, 0, 1),
 	}
 	testValidate(t, args, "return date cannot be before departure date")
 
-	args = &Args{
+	args = &gflights.Args{
 		SrcCities: []string{"abc"}, SrcAirports: []string{}, DstCities: []string{"abc"}, DstAirports: []string{},
 		DepartureDate: time.Now().AddDate(0, 0, -1),
 		ReturnDate:    time.Now().AddDate(0, 0, 1),
@@ -50,24 +52,24 @@ func TestValidateArgs(t *testing.T) {
 }
 
 func TestValidateTravelers(t *testing.T) {
-	args := &Travelers{}
+	args := &gflights.Travelers{}
 	testValidate(t, args, "at least one adult traveler is required")
 
-	args = &Travelers{
+	args = &gflights.Travelers{
 		Adults:   1,
 		Children: -1,
 	}
 
 	testValidate(t, args, "number of children and infants cannot be negative")
 
-	args = &Travelers{
+	args = &gflights.Travelers{
 		Adults:       1,
 		Children:     1,
 		InfantsOnLap: 2,
 	}
 	testValidate(t, args, "each infant on lap must be accompanied by an adult")
 
-	args = &Travelers{
+	args = &gflights.Travelers{
 		Adults:        1,
 		Children:      1,
 		InfantsOnLap:  1,
@@ -77,7 +79,7 @@ func TestValidateTravelers(t *testing.T) {
 }
 
 func TestValidatePriceGraphArgs(t *testing.T) {
-	args := &PriceGraphArgs{
+	args := &gflights.PriceGraphArgs{
 		SrcCities:      []string{"abc"},
 		SrcAirports:    []string{},
 		DstCities:      []string{},
@@ -88,7 +90,7 @@ func TestValidatePriceGraphArgs(t *testing.T) {
 	}
 	testValidate(t, args, "at least one destination city or airport is required")
 
-	args = &PriceGraphArgs{
+	args = &gflights.PriceGraphArgs{
 		SrcCities:      []string{},
 		SrcAirports:    []string{},
 		DstCities:      []string{"abc"},
@@ -99,7 +101,7 @@ func TestValidatePriceGraphArgs(t *testing.T) {
 	}
 	testValidate(t, args, "at least one source city or airport is required")
 
-	args = &PriceGraphArgs{
+	args = &gflights.PriceGraphArgs{
 		SrcCities:      []string{"abc"},
 		SrcAirports:    []string{},
 		DstCities:      []string{"abc"},
@@ -110,7 +112,7 @@ func TestValidatePriceGraphArgs(t *testing.T) {
 	}
 	testValidate(t, args, "range end date cannot be before range start date")
 
-	args = &PriceGraphArgs{
+	args = &gflights.PriceGraphArgs{
 		SrcCities:      []string{"abc"},
 		SrcAirports:    []string{},
 		DstCities:      []string{"abc"},
@@ -121,7 +123,7 @@ func TestValidatePriceGraphArgs(t *testing.T) {
 	}
 	testValidate(t, args, "range start date cannot be in the past")
 
-	args = &PriceGraphArgs{
+	args = &gflights.PriceGraphArgs{
 		SrcCities:      []string{"abc"},
 		SrcAirports:    []string{},
 		DstCities:      []string{"abc"},
@@ -132,7 +134,7 @@ func TestValidatePriceGraphArgs(t *testing.T) {
 	}
 	testValidate(t, args, "trip length must be at least 1 day")
 
-	args = &PriceGraphArgs{
+	args = &gflights.PriceGraphArgs{
 		SrcCities:      []string{"abc"},
 		SrcAirports:    []string{},
 		DstCities:      []string{"abc"},
@@ -143,7 +145,7 @@ func TestValidatePriceGraphArgs(t *testing.T) {
 	}
 	testValidate(t, args, "range start date cannot be the same as range end date")
 
-	args = &PriceGraphArgs{
+	args = &gflights.PriceGraphArgs{
 		SrcCities:      []string{"abc"},
 		SrcAirports:    []string{},
 		DstCities:      []string{"abc"},

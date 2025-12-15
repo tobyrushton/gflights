@@ -38,9 +38,20 @@ func getCookies(res *http.Response) ([]string, error) {
 }
 
 func New(opts ...SessionOptions) (*Session, error) {
-	client := &http.Client{}
+	s := &Session{
+		client: &http.Client{},
+	}
 
-	res, err := client.Get("https://www.google.com")
+	for _, opt := range opts {
+		opt(s)
+	}
+
+	req, err := http.NewRequest("GET", "https://www.google.com", nil)
+	if err != nil {
+		return nil, fmt.Errorf("new session: err creating request to www.google.com: %v", err)
+	}
+
+	res, err := s.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("new session: err sending request to www.google.com: %v", err)
 	}
@@ -60,10 +71,9 @@ func New(opts ...SessionOptions) (*Session, error) {
 		cookies = append(cookies, GOOGLE_ABUSE_EXEMPTION[0].Value)
 	}
 
-	return &Session{
-		client:  client,
-		cookies: cookies,
-	}, nil
+	s.cookies = cookies
+
+	return s, nil
 }
 
 func WithClient(client HTTPDoer) SessionOptions {
