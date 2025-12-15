@@ -10,10 +10,16 @@ import (
 	"github.com/tobyrushton/gflights/internal/syncmap"
 )
 
+type HTTPDoer interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+type SessionOptions func(s *Session)
+
 type Session struct {
 	Cities syncmap.Map[string, string]
 
-	client  *http.Client
+	client  HTTPDoer
 	cookies []string
 }
 
@@ -28,7 +34,7 @@ func getCookies(res *http.Response) ([]string, error) {
 	return nil, fmt.Errorf("could not find the 'Set-Cookie' header in the initialization response")
 }
 
-func New() (*Session, error) {
+func New(opts ...SessionOptions) (*Session, error) {
 	client := &http.Client{}
 
 	res, err := client.Get("https://www.google.com")
@@ -55,4 +61,10 @@ func New() (*Session, error) {
 		client:  client,
 		cookies: cookies,
 	}, nil
+}
+
+func WithClient(client HTTPDoer) SessionOptions {
+	return func(s *Session) {
+		s.client = client
+	}
 }
