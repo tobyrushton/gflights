@@ -10,6 +10,9 @@ import (
 	"github.com/tobyrushton/gflights/internal/syncmap"
 )
 
+//go:generate go tool counterfeiter -generate
+
+//counterfeiter:generate -o internal/fakes . HTTPDoer
 type HTTPDoer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
