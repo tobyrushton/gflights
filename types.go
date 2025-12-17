@@ -68,6 +68,7 @@ const (
 	AnyStops
 )
 
+// Configurable options for flight searches
 type Options struct {
 	Travelers Travelers
 	Class     Class
@@ -136,12 +137,18 @@ func validateLocations(srcCities, srcAirports, dstCities, dstAirports []string) 
 	return nil
 }
 
+// Args used in flight searches. Used in [Session.GetOutboundOffers] and [Session.SerialiseURL].
 type Args struct {
 	DepartureDate, ReturnDate                      time.Time
 	SrcCities, SrcAirports, DstCities, DstAirports []string
 	Options                                        Options
 }
 
+// Validates Args requirements:
+//   - at least one source location (srcCities / srcAirports)
+//   - at least one destination location (dstCities / dstAirports)
+//   - dates are in the future and in the correct order
+//   - travelers are valid, see [Travelers.Validate]
 func (a *Args) Validate() error {
 	if err := validateDate(a.DepartureDate, a.ReturnDate); err != nil {
 		return err
@@ -155,6 +162,7 @@ func (a *Args) Validate() error {
 	return nil
 }
 
+// FlightCode represents the flight code, consisting of an airline code and a flight number.
 type FlightCode struct {
 	AirlineCode  string // airline code
 	FlightNumber string // flight number
@@ -178,12 +186,14 @@ type Flight struct {
 	Legroom        string        // legroom in the airplane seats
 }
 
+// SimpleOffer represents a basic flight offer with essential details.
 type SimpleOffer struct {
 	DepartureDate time.Time // start date of the offer
 	ReturnDate    time.Time // return date of the offer
 	Price         float64   // price of the offer
 }
 
+// OutboundOffer represents a flight offer for the outbound trip.
 type OutboundOffer struct {
 	SimpleOffer
 
@@ -199,11 +209,13 @@ type OutboundOffer struct {
 	args  Args
 }
 
+// PriceRange represents a range of prices with minimum and maximum values.
 type PriceRange struct {
 	Min float64 // minimum price
 	Max float64 // maximum price
 }
 
+// ReturnOffer represents a flight offer for the return trip.
 type ReturnOffer struct {
 	Flight []Flight
 	Price  float64
@@ -211,10 +223,12 @@ type ReturnOffer struct {
 	token string
 }
 
+// FlightSegment represents a segment of a trip, which may consist of multiple legs (flights).
 type FlightSegment struct {
 	Legs []Flight // Contains the legs of the segment
 }
 
+// TripSelection represents a complete trip selection, including segments, price, class, trip type, and travelers.
 type TripSelection struct {
 	Segments  []FlightSegment // Contains the different segments of the flight (e.g., outbound and return)
 	Price     float64
@@ -246,6 +260,7 @@ func validateRangeDate(rangeStartDate time.Time, rangeEndDate time.Time) error {
 	return nil
 }
 
+// Args for Price Graph flight searches in [Session.GetPriceGraph].
 type PriceGraphArgs struct {
 	RangeStartDate, RangeEndDate                   time.Time // days range of the price graph
 	TripLength                                     int       // number of days between start trip date and return date
@@ -282,6 +297,7 @@ func (a *PriceGraphArgs) Validate() error {
 	return nil
 }
 
+// Args for Price Grid flight searches in [Session.GetPriceGrid].
 type PriceGridArgs struct {
 	StartDepartureRange, EndDepartureRange         time.Time // departure date range
 	StartReturnRange, EndReturnRange               time.Time // return date range
@@ -289,6 +305,10 @@ type PriceGridArgs struct {
 	Options                                        Options   // additional options
 }
 
+// Validates PriceGridArgs requirements:
+//   - at least one source location (srcCities / srcAirports)
+//   - at least one destination location (dstCities / dstAirports)
+//   - date ranges are in the correct order and not in the past
 func (a *PriceGridArgs) Validate() error {
 	if err := validateLocations(a.SrcCities, a.SrcAirports, a.DstCities, a.DstAirports); err != nil {
 		return err

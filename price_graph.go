@@ -75,6 +75,7 @@ func (s *Session) doRequestPriceGraph(ctx context.Context, args PriceGraphArgs) 
 	return s.client.Do(req)
 }
 
+// GetPriceGraph retrieves a price graph for the specified arguments.
 func (s *Session) GetPriceGraph(ctx context.Context, args PriceGraphArgs) ([]SimpleOffer, error) {
 	if err := args.Validate(); err != nil {
 		return nil, err

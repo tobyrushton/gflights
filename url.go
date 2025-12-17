@@ -98,6 +98,7 @@ func serialiseTravelers(travelers Travelers) []pb.Traveler {
 	return travelersRet
 }
 
+// SerialiseURL generates a Google Flights search URL from the given Args.
 func (s *Session) SerialiseURL(ctx context.Context, args Args) (string, error) {
 	var err error
 
@@ -132,6 +133,7 @@ func (s *Session) SerialiseURL(ctx context.Context, args Args) (string, error) {
 		"&hl=" + args.Options.Lang.String(), nil
 }
 
+// SerialiseBookingURL generates a Google Flights booking URL from the given TripSelection.
 func (s *Session) SerialiseBookingURL(ctx context.Context, trip *TripSelection) (string, error) {
 	if trip == nil {
 		return "", fmt.Errorf("trip selection cannot be nil")
