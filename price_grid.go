@@ -76,6 +76,11 @@ func (s *Session) doRequestPriceGrid(ctx context.Context, args PriceGridArgs) (*
 	return s.client.Do(req)
 }
 
+// GetPriceGrid retrieves a price grid based on the provided arguments.
+//
+// While not validated here, the grid can contain a maximum of 200 results, will return nothing if the range is larger.
+//
+// Can be used for one way trips, but recommended to use [Session.GetPriceGraph] for that purpose.
 func (s *Session) GetPriceGrid(ctx context.Context, args PriceGridArgs) ([]SimpleOffer, error) {
 	if err := args.Validate(); err != nil {
 		return nil, err

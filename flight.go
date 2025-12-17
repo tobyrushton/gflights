@@ -388,6 +388,8 @@ func (s *Session) doGetOffers(ctx context.Context, args requestFlightArgs) ([]of
 	}
 }
 
+// GetOutboundOffers fetches outbound flight offers based on the provided arguments. Can be used for one-way and round-trip trips.
+// For a round-trip, the price displayed is for the cheapest combination of outbound and return flights.
 func (s *Session) GetOutboundOffers(ctx context.Context, args Args) ([]OutboundOffer, *PriceRange, error) {
 	if err := args.Validate(); err != nil {
 		return nil, nil, err

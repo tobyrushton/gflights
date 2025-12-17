@@ -37,6 +37,9 @@ func serialiseRoundTrip(token string, flights []Flight, price float64, currency 
 	return base64.RawURLEncoding.EncodeToString(serBytes), nil
 }
 
+// GetReturnFlights fetches return flight offers for this outbound offer.
+//
+// The price returned is the final price for the entire trip (outbound + return).
 func (o *OutboundOffer) GetReturnFlights(ctx context.Context) ([]ReturnOffer, error) {
 	// not stricly required for the request.
 	serRoundTrip, err := serialiseRoundTrip(o.token, o.Flight, o.Price, o.args.Options.Currency)
@@ -65,6 +68,7 @@ func (o *OutboundOffer) GetReturnFlights(ctx context.Context) ([]ReturnOffer, er
 	return finalOffers, nil
 }
 
+// SelectReturnFlight selects this outbound offer along with the provided return flight offer,
 func (o *OutboundOffer) SelectReturnFlight(returnFlight ReturnOffer) (*TripSelection, error) {
 	if o.args.ReturnDate.IsZero() {
 		return nil, fmt.Errorf("cannot select return flight for one-way trip")
@@ -82,6 +86,7 @@ func (o *OutboundOffer) SelectReturnFlight(returnFlight ReturnOffer) (*TripSelec
 	}, nil
 }
 
+// SelectOneWay selects this outbound offer as a one-way trip.
 func (o *OutboundOffer) SelectOneWay() *TripSelection {
 	return &TripSelection{
 		Segments: []FlightSegment{{
