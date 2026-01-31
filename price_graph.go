@@ -1,17 +1,13 @@
 package gflights
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"fmt"
 	"net/http"
 	"net/url"
-	"sort"
 	"strconv"
 	"time"
-
-	"github.com/tobyrushton/gflights/internal/utils"
 )
 
 func (s *Session) getPriceGraphReqData(ctx context.Context, args PriceGraphArgs) (string, error) {
@@ -89,20 +85,10 @@ func (s *Session) GetPriceGraph(ctx context.Context, args PriceGraphArgs) ([]Sim
 	}
 	defer resp.Body.Close()
 
-	body := bufio.NewReader(resp.Body)
-	utils.SkipPrefix(body)
-
-	for {
-		utils.ReadLine(body) // skip line
-		bytesToDecode, err := utils.GetInnerBytes(body)
-		if err != nil {
-			sort.Slice(offers, func(i, j int) bool {
-				return offers[i].DepartureDate.Before(offers[j].DepartureDate)
-			})
-			return offers, nil
-		}
-
-		offers_, _ := getPriceCalendarSection(bytesToDecode)
-		offers = append(offers, offers_...)
+	err = decodeMessage(resp.Body, &offers)
+	if err != nil {
+		return nil, err
 	}
+
+	return offers, nil
 }

@@ -1,7 +1,6 @@
 package gflights
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -9,8 +8,6 @@ import (
 	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/tobyrushton/gflights/internal/utils"
 )
 
 func (s *Session) getPriceGridReqData(ctx context.Context, args PriceGridArgs) (string, error) {
@@ -94,16 +91,10 @@ func (s *Session) GetPriceGrid(ctx context.Context, args PriceGridArgs) ([]Simpl
 
 	offers := make([]SimpleOffer, 0)
 
-	body := bufio.NewReader(resp.Body)
-	utils.SkipPrefix(body)
-
-	for {
-		utils.ReadLine(body) // skip line
-		bytesToDecode, err := utils.GetInnerBytes(body)
-		if err != nil {
-			return offers, nil
-		}
-		offers_, _ := getPriceCalendarSection(bytesToDecode)
-		offers = append(offers, offers_...)
+	err = decodeMessage(resp.Body, &offers)
+	if err != nil {
+		return nil, err
 	}
+
+	return offers, nil
 }
