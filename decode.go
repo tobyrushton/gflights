@@ -24,8 +24,11 @@ func decodeMessage(body io.ReadCloser, out any) error {
 			if err != nil {
 				return err
 			}
-		case *[]OutboundOffer:
-			break
+		case *outboundResponse:
+			err := decodeOutboundResponse(bytesToDecode, out.(*outboundResponse))
+			if err != nil {
+				return err
+			}
 		}
 	}
 }
@@ -33,5 +36,20 @@ func decodeMessage(body io.ReadCloser, out any) error {
 func decodeSimpleOffer(bytesToDecode []byte, out *[]SimpleOffer) error {
 	offers, _ := getPriceCalendarSection(bytesToDecode)
 	*out = append(*out, offers...)
+	return nil
+}
+
+func decodeOutboundResponse(bytesToDecode []byte, out *outboundResponse) error {
+	if out.Token == "" {
+		out.Token = getToken(bytesToDecode)
+	}
+
+	offers, priceRange, _ := getSectionOffers(bytesToDecode)
+
+	out.Offers = append(out.Offers, offers...)
+	if priceRange != nil {
+		out.PriceRange = priceRange
+	}
+
 	return nil
 }

@@ -1,7 +1,6 @@
 package gflights
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -11,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/tobyrushton/gflights/internal/utils"
 	"golang.org/x/text/language"
 )
 
@@ -42,6 +40,12 @@ type offer struct {
 	SrcCity        string
 	DstCity        string
 	Price          float64
+}
+
+type outboundResponse struct {
+	Offers     []offer
+	PriceRange *PriceRange
+	Token      string
 }
 
 func serialiseFlightStop(stops Stops) string {
@@ -270,7 +274,7 @@ func offerSchema(rawFlights *[]json.RawMessage, price *float64) *[]any {
 	return &[]any{&[]any{nil, nil, rawFlights}, &[]any{&[]any{nil, price}}}
 }
 
-func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]offer, error) {
+func getSubsectionOffers(rawOffers []json.RawMessage) ([]offer, error) {
 	offers := []offer{}
 	for _, rawOffer := range rawOffers {
 		offer := offer{}
@@ -292,7 +296,6 @@ func getSubsectionOffers(rawOffers []json.RawMessage, returnDate time.Time) ([]o
 		offer.Flight = flights
 
 		offer.StartDate = flights[0].DepTime
-		offer.ReturnDate = returnDate.UTC()
 
 		offer.Duration = getFlightsDuration(flights)
 
@@ -312,7 +315,7 @@ func sectionOffersSchema(rawOffers1, rawOffers2 *[]json.RawMessage, priceRange *
 		&[]any{nil, &priceRange.Min}, &[]any{nil, &priceRange.Max}}}
 }
 
-func getSectionOffers(bytesToDecode []byte, returnDate time.Time) ([]offer, *PriceRange, error) {
+func getSectionOffers(bytesToDecode []byte) ([]offer, *PriceRange, error) {
 	rawOffers1 := []json.RawMessage{}
 	rawOffers2 := []json.RawMessage{}
 
@@ -323,12 +326,12 @@ func getSectionOffers(bytesToDecode []byte, returnDate time.Time) ([]offer, *Pri
 	}
 
 	allOffers := []offer{}
-	offers1, err := getSubsectionOffers(rawOffers1, returnDate)
+	offers1, err := getSubsectionOffers(rawOffers1)
 	if err != nil {
 		return nil, nil, err
 	}
 	allOffers = append(allOffers, offers1...)
-	offers2, err := getSubsectionOffers(rawOffers2, returnDate)
+	offers2, err := getSubsectionOffers(rawOffers2)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -356,36 +359,25 @@ func getToken(bytes []byte) string {
 }
 
 func (s *Session) doGetOffers(ctx context.Context, args requestFlightArgs) ([]offer, *PriceRange, string, error) {
-	finalOffers := []offer{}
+	offers := []offer{}
 	var finalPriceRange *PriceRange
+
+	or := outboundResponse{
+		Offers:     offers,
+		PriceRange: finalPriceRange,
+	}
 
 	resp, err := s.doRequestFlights(ctx, args)
 	if err != nil {
 		return nil, nil, "", err
 	}
 	defer resp.Body.Close()
-
-	body := bufio.NewReader(resp.Body)
-	utils.SkipPrefix(body)
-	token := ""
-
-	for {
-		utils.ReadLine(body) // skip line
-		bytesToDecode, err := utils.GetInnerBytes(body)
-		if err != nil {
-			return finalOffers, finalPriceRange, token, nil
-		}
-
-		if token == "" {
-			token = getToken(bytesToDecode)
-		}
-
-		offers, priceRange, _ := getSectionOffers(bytesToDecode, args.ReturnDate)
-		finalOffers = append(finalOffers, offers...)
-		if priceRange != nil {
-			finalPriceRange = priceRange
-		}
+	err = decodeMessage(resp.Body, &or)
+	if err != nil {
+		return nil, nil, "", err
 	}
+
+	return or.Offers, or.PriceRange, or.Token, nil
 }
 
 // GetOutboundOffers fetches outbound flight offers based on the provided arguments. Can be used for one-way and round-trip trips.
