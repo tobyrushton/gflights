@@ -110,8 +110,8 @@ func TestMockedGetPriceGraph(t *testing.T) {
 	offers, err := session.GetPriceGraph(
 		context.Background(),
 		gflights.PriceGraphArgs{
-			RangeStartDate: time.Date(2026, time.January, 5, 0, 0, 0, 0, time.UTC),
-			RangeEndDate:   time.Date(2026, time.March, 5, 0, 0, 0, 0, time.UTC),
+			RangeStartDate: time.Now().Add(time.Hour * 60),
+			RangeEndDate:   time.Now().Add(time.Hour*60 + time.Hour*24*90),
 			TripLength:     7,
 			SrcCities:      []string{"London"},
 			DstCities:      []string{"Denver"},

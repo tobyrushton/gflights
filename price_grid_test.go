@@ -152,10 +152,10 @@ func TestMockedGetPriceGrid(t *testing.T) {
 	offers, err := session.GetPriceGrid(
 		context.Background(),
 		gflights.PriceGridArgs{
-			StartDepartureRange: time.Date(2026, time.January, 9, 0, 0, 0, 0, time.UTC),
-			EndDepartureRange:   time.Date(2026, time.January, 15, 0, 0, 0, 0, time.UTC),
-			StartReturnRange:    time.Date(2026, time.January, 16, 0, 0, 0, 0, time.UTC),
-			EndReturnRange:      time.Date(2026, time.January, 22, 0, 0, 0, 0, time.UTC),
+			StartDepartureRange: time.Now().Add(time.Hour * 24),
+			EndDepartureRange:   time.Now().Add(time.Hour * 24 * 6),
+			StartReturnRange:    time.Now().Add(time.Hour * 24 * 7),
+			EndReturnRange:      time.Now().Add(time.Hour * 24 * 13),
 			SrcCities:           []string{"London"},
 			DstCities:           []string{"Denver"},
 			Options: gflights.Options{
