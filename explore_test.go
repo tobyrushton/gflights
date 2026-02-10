@@ -2,10 +2,12 @@ package gflights_test
 
 import (
 	"context"
+	"net/http"
 	"testing"
 	"time"
 
 	"github.com/tobyrushton/gflights"
+	"github.com/tobyrushton/gflights/internal/fakes"
 	"golang.org/x/text/currency"
 )
 
@@ -77,6 +79,102 @@ func TestExploreOneWay(t *testing.T) {
 			Stops:     gflights.AnyStops,
 			Class:     gflights.Economy,
 			TripType:  gflights.OneWay,
+		},
+		Coordinates: gflights.ExploreCoordinates{ // SEA
+			NorthLat: 28,
+			EastLng:  141,
+			SouthLat: -11,
+			WestLng:  92,
+		},
+	}
+
+	offers, err := session.GetExplore(context.Background(), args)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(offers) == 0 {
+		t.Fatal("expected at least one offer")
+	}
+}
+
+func TestMockedExploreOneWay(t *testing.T) {
+	d := &fakes.FakeHTTPDoer{}
+
+	d.DoReturnsOnCall(0, getSetUpResponse(), nil)
+
+	session, err := gflights.New(gflights.WithClient(d))
+	if err != nil {
+		t.Fatalf("failed to create session: %v", err)
+	}
+
+	d.DoReturnsOnCall(1, &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       getReadCloser(t, "testdata/location/abbr/london.txt"),
+	}, nil)
+
+	d.DoReturnsOnCall(2, &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       getReadCloser(t, "testdata/explore/one_way.txt"),
+	}, nil)
+
+	args := gflights.ExploreArgs{
+		DepartureDate: time.Now().Add(time.Hour * 24),
+		SrcCities:     []string{"LONDON"},
+		Options: gflights.Options{
+			Travelers: gflights.Travelers{Adults: 1},
+			Currency:  currency.GBP,
+			Stops:     gflights.AnyStops,
+			Class:     gflights.Economy,
+			TripType:  gflights.OneWay,
+		},
+		Coordinates: gflights.ExploreCoordinates{ // SEA
+			NorthLat: 28,
+			EastLng:  141,
+			SouthLat: -11,
+			WestLng:  92,
+		},
+	}
+
+	offers, err := session.GetExplore(context.Background(), args)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(offers) == 0 {
+		t.Fatal("expected at least one offer")
+	}
+}
+
+func TestMockedExplore(t *testing.T) {
+	d := &fakes.FakeHTTPDoer{}
+
+	d.DoReturnsOnCall(0, getSetUpResponse(), nil)
+
+	session, err := gflights.New(gflights.WithClient(d))
+	if err != nil {
+		t.Fatalf("failed to create session: %v", err)
+	}
+
+	d.DoReturnsOnCall(1, &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       getReadCloser(t, "testdata/location/abbr/london.txt"),
+	}, nil)
+
+	d.DoReturnsOnCall(2, &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       getReadCloser(t, "testdata/explore/round_trip.txt"),
+	}, nil)
+
+	args := gflights.ExploreArgs{
+		DepartureDate: time.Now().Add(time.Hour * 24),
+		SrcCities:     []string{"LONDON"},
+		Options: gflights.Options{
+			Travelers: gflights.Travelers{Adults: 1},
+			Currency:  currency.GBP,
+			Stops:     gflights.AnyStops,
+			Class:     gflights.Economy,
+			TripType:  gflights.RoundTrip,
 		},
 		Coordinates: gflights.ExploreCoordinates{ // SEA
 			NorthLat: 28,
