@@ -328,3 +328,19 @@ func (a *PriceGridArgs) Validate() error {
 
 	return nil
 }
+
+type ExploreArgs struct {
+	DepartureDate, ReturnDate time.Time
+	SrcCities, SrcAirports    []string
+	Options                   Options
+}
+
+type ExploreOffer struct {
+	CityID         string `json:"city_id"`
+	AirportCode    string `json:"airport_code"`
+	Price          int    `json:"price"`
+	Airline        string `json:"airline"`
+	AirlineCode    string `json:"airline_code"`
+	IsMultiCarrier bool   `json:"is_multi_carrier"`
+	Stops          int    `json:"stops"`
+}
