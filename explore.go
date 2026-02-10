@@ -176,6 +176,10 @@ func (s *Session) doExplore(ctx context.Context, args ExploreArgs) (*http.Respon
 }
 
 func (s *Session) GetExplore(ctx context.Context, args ExploreArgs) ([]ExploreOffer, error) {
+	if err := args.Validate(); err != nil {
+		return nil, err
+	}
+
 	resp, err := s.doExplore(ctx, args)
 	if err != nil {
 		return nil, err

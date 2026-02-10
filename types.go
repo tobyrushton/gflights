@@ -340,6 +340,36 @@ type ExploreArgs struct {
 	Options                   Options
 }
 
+func (a *ExploreArgs) Validate() error {
+	if err := validateDate(a.DepartureDate, a.ReturnDate); err != nil {
+		return err
+	}
+	if len(a.SrcCities)+len(a.SrcAirports) == 0 {
+		return fmt.Errorf("at least one source city or airport is required")
+	}
+	for _, s := range a.SrcAirports {
+		if !isAirportCode(s) {
+			return fmt.Errorf("src airport '%s' is not an airport code", s)
+		}
+	}
+	if a.Coordinates.NorthLat < -90 || a.Coordinates.NorthLat > 90 ||
+		a.Coordinates.SouthLat < -90 || a.Coordinates.SouthLat > 90 ||
+		a.Coordinates.EastLng < -180 || a.Coordinates.EastLng > 180 ||
+		a.Coordinates.WestLng < -180 || a.Coordinates.WestLng > 180 {
+		return fmt.Errorf("coordinates are out of bounds")
+	}
+	if a.Coordinates.NorthLat <= a.Coordinates.SouthLat {
+		return fmt.Errorf("north latitude must be greater than south latitude")
+	}
+	if a.Coordinates.EastLng <= a.Coordinates.WestLng {
+		return fmt.Errorf("east longitude must be greater than west longitude")
+	}
+	if err := a.Options.Travelers.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 type ExploreOffer struct {
 	CityID         string
 	AirportCode    string
