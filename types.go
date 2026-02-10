@@ -364,14 +364,18 @@ func (a *ExploreArgs) Validate() error {
 		a.Coordinates.WestLng < -180 || a.Coordinates.WestLng > 180 {
 		return fmt.Errorf("coordinates are out of bounds")
 	}
+	if err := a.Options.Travelers.Validate(); err != nil {
+		return err
+	}
+	if a.Coordinates.NorthLat == 0 && a.Coordinates.EastLng == 0 && a.Coordinates.SouthLat == 0 && a.Coordinates.WestLng == 0 {
+		// if all coordinates are 0, we consider it as no coordinates provided, so we skip the validation of the order of coordinates
+		return nil
+	}
 	if a.Coordinates.NorthLat <= a.Coordinates.SouthLat {
 		return fmt.Errorf("north latitude must be greater than south latitude")
 	}
 	if a.Coordinates.EastLng <= a.Coordinates.WestLng {
 		return fmt.Errorf("east longitude must be greater than west longitude")
-	}
-	if err := a.Options.Travelers.Validate(); err != nil {
-		return err
 	}
 	return nil
 }

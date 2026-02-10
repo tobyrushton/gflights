@@ -28,11 +28,18 @@ func (s *Session) getExploreRawData(ctx context.Context, args ExploreArgs) (stri
 
 	rawData := ""
 
-	rawData += fmt.Sprintf(`[[%f,%f],[%f,%f]],null,[null,null,%d,null,[],%d,%s,null,null,null,null,null,null,`,
+	serCoords := fmt.Sprintf(`[[%f,%f],[%f,%f]]`,
 		args.Coordinates.NorthLat,
 		args.Coordinates.EastLng,
 		args.Coordinates.SouthLat,
 		args.Coordinates.WestLng,
+	)
+	if args.Coordinates.NorthLat == 0 && args.Coordinates.EastLng == 0 && args.Coordinates.SouthLat == 0 && args.Coordinates.WestLng == 0 {
+		serCoords = `null`
+	}
+
+	rawData += fmt.Sprintf(`%s,null,[null,null,%d,null,[],%d,%s,null,null,null,null,null,null,`,
+		serCoords,
 		args.Options.TripType,
 		args.Options.Class,
 		serTravelers,
