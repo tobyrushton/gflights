@@ -328,3 +328,60 @@ func (a *PriceGridArgs) Validate() error {
 
 	return nil
 }
+
+type ExploreCoordinates struct {
+	NorthLat, SouthLat, EastLng, WestLng float64
+}
+
+// Args for Explore flight searches in [Session.GetExplore].
+type ExploreArgs struct {
+	DepartureDate, ReturnDate time.Time
+	SrcCities, SrcAirports    []string
+	Coordinates               ExploreCoordinates
+	Options                   Options
+}
+
+// Validates ExploreArgs requirements:
+//   - at least one source location (srcCities / srcAirports)
+//   - srcAirports have to be in the right IATA format: https://en.wikipedia.org/wiki/IATA_airport_code
+//   - dates have to be in the chronological order: today's date -> DepartureDate -> ReturnDate
+//   - coordinates have to be in the correct format and order: north latitude > south latitude, east longitude > west longitude, latitudes between -90 and 90, longitudes between -180 and 180
+func (a *ExploreArgs) Validate() error {
+	if err := validateDate(a.DepartureDate, a.ReturnDate); err != nil {
+		return err
+	}
+	if len(a.SrcCities)+len(a.SrcAirports) == 0 {
+		return fmt.Errorf("at least one source city or airport is required")
+	}
+	for _, s := range a.SrcAirports {
+		if !isAirportCode(s) {
+			return fmt.Errorf("src airport '%s' is not an airport code", s)
+		}
+	}
+	if a.Coordinates.NorthLat < -90 || a.Coordinates.NorthLat > 90 ||
+		a.Coordinates.SouthLat < -90 || a.Coordinates.SouthLat > 90 ||
+		a.Coordinates.EastLng < -180 || a.Coordinates.EastLng > 180 ||
+		a.Coordinates.WestLng < -180 || a.Coordinates.WestLng > 180 {
+		return fmt.Errorf("coordinates are out of bounds")
+	}
+	if a.Coordinates.NorthLat <= a.Coordinates.SouthLat {
+		return fmt.Errorf("north latitude must be greater than south latitude")
+	}
+	if a.Coordinates.EastLng <= a.Coordinates.WestLng {
+		return fmt.Errorf("east longitude must be greater than west longitude")
+	}
+	if err := a.Options.Travelers.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+type ExploreOffer struct {
+	CityID         string
+	AirportCode    string
+	Price          int
+	Airline        string
+	AirlineCode    string
+	IsMultiCarrier bool
+	Stops          int
+}
