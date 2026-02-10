@@ -333,6 +333,7 @@ type ExploreCoordinates struct {
 	NorthLat, SouthLat, EastLng, WestLng float64
 }
 
+// Args for Explore flight searches in [Session.GetExplore].
 type ExploreArgs struct {
 	DepartureDate, ReturnDate time.Time
 	SrcCities, SrcAirports    []string
@@ -340,6 +341,11 @@ type ExploreArgs struct {
 	Options                   Options
 }
 
+// Validates ExploreArgs requirements:
+//   - at least one source location (srcCities / srcAirports)
+//   - srcAirports have to be in the right IATA format: https://en.wikipedia.org/wiki/IATA_airport_code
+//   - dates have to be in the chronological order: today's date -> DepartureDate -> ReturnDate
+//   - coordinates have to be in the correct format and order: north latitude > south latitude, east longitude > west longitude, latitudes between -90 and 90, longitudes between -180 and 180
 func (a *ExploreArgs) Validate() error {
 	if err := validateDate(a.DepartureDate, a.ReturnDate); err != nil {
 		return err

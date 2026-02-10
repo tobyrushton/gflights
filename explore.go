@@ -175,6 +175,11 @@ func (s *Session) doExplore(ctx context.Context, args ExploreArgs) (*http.Respon
 	return s.client.Do(req)
 }
 
+// GetExplore retrieves flight offers for different cities based on a given source location and a coordinate window to search in.
+//
+// The tighter the search coordinates are the more that 'smaller' airports will show up in the results,
+// generally the results will be dominated by the larger airports in the area, but if you want to find offers from smaller airports you can try tightening the search coordinates.
+// Results will be returned unsorted in any way.
 func (s *Session) GetExplore(ctx context.Context, args ExploreArgs) ([]ExploreOffer, error) {
 	if err := args.Validate(); err != nil {
 		return nil, err
