@@ -22,9 +22,15 @@ func TestExplore(t *testing.T) {
 		Options: gflights.Options{
 			Travelers: gflights.Travelers{Adults: 1},
 			Currency:  currency.GBP,
-			Stops:     gflights.NonStop,
+			Stops:     gflights.AnyStops,
 			Class:     gflights.Economy,
 			TripType:  gflights.RoundTrip,
+		},
+		Coordinates: gflights.ExploreCoordinates{ // SEA
+			NorthLat: 28,
+			EastLng:  141,
+			SouthLat: -11,
+			WestLng:  92,
 		},
 	}
 
@@ -35,5 +41,23 @@ func TestExplore(t *testing.T) {
 
 	if len(offers) == 0 {
 		t.Fatal("expected at least one offer")
+	}
+
+	// check for some basic airports in SEA to be present in the results
+	SEAAirports := map[string]struct{}{
+		"KTI": {},
+		"BKK": {},
+		"HKG": {},
+		"SGN": {},
+		"KUL": {},
+		"DPS": {},
+	}
+
+	for _, offer := range offers {
+		delete(SEAAirports, offer.AirportCode)
+	}
+
+	if len(SEAAirports) > 0 {
+		t.Fatalf("expected to find offers for the following SEA airports: %v", SEAAirports)
 	}
 }

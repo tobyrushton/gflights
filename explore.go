@@ -28,8 +28,15 @@ func (s *Session) getExploreRawData(ctx context.Context, args ExploreArgs) (stri
 
 	rawData := ""
 
-	rawData += fmt.Sprintf(`[[63.162218955852715,75.14279024243156],[5.895656173341453,14.146696492431555]],null,[null,null,%d,null,[],%d,%s,null,null,null,null,null,null,`,
-		args.Options.TripType, args.Options.Class, serTravelers)
+	rawData += fmt.Sprintf(`[[%f,%f],[%f,%f]],null,[null,null,%d,null,[],%d,%s,null,null,null,null,null,null,`,
+		args.Coordinates.NorthLat,
+		args.Coordinates.EastLng,
+		args.Coordinates.SouthLat,
+		args.Coordinates.WestLng,
+		args.Options.TripType,
+		args.Options.Class,
+		serTravelers,
+	)
 
 	rawData += fmt.Sprintf(`[[[[%s]],[],null,%s,null,null,\"%s\"]`,
 		serSrcs, serStops, serDepartureDate)
