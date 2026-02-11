@@ -73,9 +73,6 @@ func (o *OutboundOffer) SelectReturnFlight(returnFlight ReturnOffer) (*TripSelec
 	if o.args.ReturnDate.IsZero() {
 		return nil, fmt.Errorf("cannot select return flight for one-way trip")
 	}
-	if o.token == "" || o.token != returnFlight.token {
-		return nil, fmt.Errorf("cannot select return flight from different offer")
-	}
 	return &TripSelection{
 		Segments: []FlightSegment{{
 			Legs: o.Flight,
