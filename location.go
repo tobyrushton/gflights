@@ -104,10 +104,7 @@ func (s *Session) AbbrCity(ctx context.Context, city string, lang language.Tag) 
 		return "", fmt.Errorf("AbbrCity error during decoding: %v", err)
 	}
 
-	if !compareStrLatin(city, receivedCity) {
-		return "", fmt.Errorf("the requested city name didn't match the found. requested: %s found: %s", city, receivedCity)
-	}
-
+	s.Cities.Store(city, abbrCity)
 	s.Cities.Store(receivedCity, abbrCity)
 
 	return abbrCity, nil
